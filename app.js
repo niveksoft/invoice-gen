@@ -118,6 +118,26 @@
         loadInvoices();
         resetForm(); // Sets up new invoice with next number
         updateTotals();
+
+        // Tab Switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                switchTab(tabId);
+            });
+        });
+    }
+
+    function switchTab(tabId) {
+        // Update buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.toggle('active', content.id === `${tabId}-tab`);
+        });
     }
 
     // Add new line item
@@ -801,6 +821,7 @@
 
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        switchTab('editor');
         showMessage(`📂 Invoice ${invoice.invoiceNumber} loaded`);
     }
 

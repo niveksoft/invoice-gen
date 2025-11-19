@@ -16,287 +16,302 @@
             <p class="subtitle">Create professional PDF invoices in seconds</p>
         </header>
 
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="editor">📝 Editor</button>
+            <button class="tab-btn" data-tab="history">📜 History</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+        </div>
+
         <main>
-            <!-- Sender Information -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="card-icon">👤</div>
-                    <h2 class="card-title">Your Information</h2>
-                </div>
+            <!-- Editor Tab -->
+            <div id="editor-tab" class="tab-content active">
+                <!-- Sender Information -->
+                <section class="card">
+                    <div class="card-header">
+                        <div class="card-icon">👤</div>
+                        <h2 class="card-title">Your Information</h2>
+                    </div>
 
-                <!-- Issuer Profile Selection -->
-                <div
-                    style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
-                    <div class="form-group">
-                        <label for="issuerSelect">Select Saved Profile</label>
-                        <div style="display: flex; gap: var(--spacing-sm);">
-                            <select id="issuerSelect" style="flex: 1;">
-                                <option value="">-- Select a profile --</option>
+                    <!-- Issuer Profile Selection -->
+                    <div
+                        style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
+                        <div class="form-group">
+                            <label for="issuerSelect">Select Saved Profile</label>
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <select id="issuerSelect" style="flex: 1;">
+                                    <option value="">-- Select a profile --</option>
+                                </select>
+                                <button type="button" id="saveIssuerBtn" class="btn btn-secondary btn-sm"
+                                    title="Save current profile">💾</button>
+                                <button type="button" id="deleteIssuerBtn" class="btn btn-secondary btn-sm"
+                                    title="Delete selected profile">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="senderName">Full Name</label>
+                            <input type="text" id="senderName" placeholder="Full Name" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="senderAddress">Address</label>
+                            <input type="text" id="senderAddress" placeholder="Address" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderEmail">Email</label>
+                            <input type="email" id="senderEmail" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderPhone">Phone</label>
+                            <input type="tel" id="senderPhone" placeholder="Phone number" required>
+                        </div>
+                </section>
+
+                <!-- Invoice Details -->
+                <section class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📋</div>
+                        <h2 class="card-title">Invoice Details</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="invoiceNumber">Invoice Number</label>
+                            <input type="text" id="invoiceNumber" placeholder="Invoice Number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method</label>
+                            <input type="text" id="paymentMethod"
+                                placeholder="e.g., Interac, Bank Transfer, Credit Card" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="issueDate">Issue Date</label>
+                            <input type="date" id="issueDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="dueDate">Due Date</label>
+                            <input type="date" id="dueDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="invoiceStatus">Status (Watermark)</label>
+                            <select id="invoiceStatus">
+                                <option value="">None</option>
+                                <option value="DRAFT">Draft</option>
+                                <option value="PAID">Paid</option>
+                                <option value="OVERDUE">Overdue</option>
+                                <option value="VOID">Void</option>
                             </select>
-                            <button type="button" id="saveIssuerBtn" class="btn btn-secondary btn-sm"
-                                title="Save current profile">💾</button>
-                            <button type="button" id="deleteIssuerBtn" class="btn btn-secondary btn-sm"
-                                title="Delete selected profile">🗑️</button>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="senderName">Full Name</label>
-                        <input type="text" id="senderName" placeholder="Full Name" required>
+                <!-- Recipient Information -->
+                <section class="card">
+                    <div class="card-header">
+                        <div class="card-icon">🏢</div>
+                        <h2 class="card-title">Issued To</h2>
                     </div>
-                    <div class="form-group full-width">
-                        <label for="senderAddress">Address</label>
-                        <input type="text" id="senderAddress" placeholder="Address" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="senderEmail">Email</label>
-                        <input type="email" id="senderEmail" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="senderPhone">Phone</label>
-                        <input type="tel" id="senderPhone" placeholder="Phone number" required>
-                    </div>
-            </section>
 
-            <!-- Invoice Details -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="card-icon">📋</div>
-                    <h2 class="card-title">Invoice Details</h2>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="invoiceNumber">Invoice Number</label>
-                        <input type="text" id="invoiceNumber" placeholder="Invoice Number" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentMethod">Payment Method</label>
-                        <input type="text" id="paymentMethod" placeholder="e.g., Interac, Bank Transfer, Credit Card"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label for="issueDate">Issue Date</label>
-                        <input type="date" id="issueDate">
-                    </div>
-                    <div class="form-group">
-                        <label for="dueDate">Due Date</label>
-                        <input type="date" id="dueDate">
-                    </div>
-                    <div class="form-group">
-                        <label for="invoiceStatus">Status (Watermark)</label>
-                        <select id="invoiceStatus">
-                            <option value="">None</option>
-                            <option value="DRAFT">Draft</option>
-                            <option value="PAID">Paid</option>
-                            <option value="OVERDUE">Overdue</option>
-                            <option value="VOID">Void</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Recipient Information -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="card-icon">🏢</div>
-                    <h2 class="card-title">Issued To</h2>
-                </div>
-
-                <!-- Client Selection -->
-                <div
-                    style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
-                    <div class="form-group">
-                        <label for="clientSelect">Select Saved Client</label>
-                        <div style="display: flex; gap: var(--spacing-sm);">
-                            <select id="clientSelect" style="flex: 1;">
-                                <option value="">-- Select a client --</option>
-                            </select>
-                            <button type="button" id="saveClientBtn" class="btn btn-secondary btn-sm"
-                                title="Save current client">💾</button>
-                            <button type="button" id="deleteClientBtn" class="btn btn-secondary btn-sm"
-                                title="Delete selected client">🗑️</button>
+                    <!-- Client Selection -->
+                    <div
+                        style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
+                        <div class="form-group">
+                            <label for="clientSelect">Select Saved Client</label>
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <select id="clientSelect" style="flex: 1;">
+                                    <option value="">-- Select a client --</option>
+                                </select>
+                                <button type="button" id="saveClientBtn" class="btn btn-secondary btn-sm"
+                                    title="Save current client">💾</button>
+                                <button type="button" id="deleteClientBtn" class="btn btn-secondary btn-sm"
+                                    title="Delete selected client">🗑️</button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="recipientName">Name</label>
-                        <input type="text" id="recipientName" placeholder="Name" required>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="recipientName">Name</label>
+                            <input type="text" id="recipientName" placeholder="Name" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="recipientAddress">Address</label>
+                            <input type="text" id="recipientAddress" placeholder="Address" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientEmail">Email</label>
+                            <input type="email" id="recipientEmail" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientPhone">Phone</label>
+                            <input type="tel" id="recipientPhone" placeholder="Phone number" required>
+                        </div>
                     </div>
-                    <div class="form-group full-width">
-                        <label for="recipientAddress">Address</label>
-                        <input type="text" id="recipientAddress" placeholder="Address" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="recipientEmail">Email</label>
-                        <input type="email" id="recipientEmail" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="recipientPhone">Phone</label>
-                        <input type="tel" id="recipientPhone" placeholder="Phone number" required>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Line Items -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="card-icon">📦</div>
-                    <h2 class="card-title">Items / Services</h2>
-                </div>
+                <!-- Line Items -->
+                <section class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📦</div>
+                        <h2 class="card-title">Items / Services</h2>
+                    </div>
 
-                <div class="table-wrapper">
-                    <table id="itemsTable">
-                        <thead>
-                            <tr>
-                                <th style="width: 50%">Product/Service</th>
-                                <th style="width: 15%">Quantity</th>
-                                <th style="width: 20%">Unit Price (CA$)</th>
-                                <th style="width: 15%">Amount (CA$)</th>
-                                <th style="width: 5%"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsTableBody">
-                            <tr data-row="0">
-                                <td>
-                                    <input type="text" class="item-description"
-                                        placeholder="Product or service description" required>
-                                </td>
-                                <td>
-                                    <input type="number" class="item-quantity" min="1" value="1" step="1" required>
-                                </td>
-                                <td>
-                                    <input type="number" class="item-price" min="0" value="0" step="0.01" required>
-                                </td>
-                                <td class="item-amount">CA$0.00</td>
-                                <td>
-                                    <button type="button" class="btn btn-secondary btn-sm remove-item"
-                                        title="Remove item">×</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="table-wrapper">
+                        <table id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%">Product/Service</th>
+                                    <th style="width: 15%">Quantity</th>
+                                    <th style="width: 20%">Unit Price (CA$)</th>
+                                    <th style="width: 15%">Amount (CA$)</th>
+                                    <th style="width: 5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody">
+                                <tr data-row="0">
+                                    <td>
+                                        <input type="text" class="item-description"
+                                            placeholder="Product or service description" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="item-quantity" min="1" value="1" step="1" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="item-price" min="0" value="0" step="0.01" required>
+                                    </td>
+                                    <td class="item-amount">CA$0.00</td>
+                                    <td>
+                                        <button type="button" class="btn btn-secondary btn-sm remove-item"
+                                            title="Remove item">×</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div class="action-buttons">
-                    <button type="button" id="addItemBtn" class="btn btn-secondary">
-                        <span>+ Add Line Item</span>
+                    <div class="action-buttons">
+                        <button type="button" id="addItemBtn" class="btn btn-secondary">
+                            <span>+ Add Line Item</span>
+                        </button>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="totals">
+                        <div class="total-row">
+                            <span class="total-label">Subtotal:</span>
+                            <span class="total-value" id="subtotal">CA$550.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">Shipping:</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <span>CA$</span>
+                                <input type="number" id="shippingFee" value="0" min="0" step="0.01"
+                                    style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
+                            </div>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">Tax Rate:</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="taxRate" value="0" min="0" max="100" step="0.01"
+                                    style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
+                                <span>%</span>
+                            </div>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">Tax Amount:</span>
+                            <span class="total-value" id="taxAmount">CA$0.00</span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span class="total-label">Total:</span>
+                            <span class="total-value" id="grandTotal">CA$550.00</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Notes -->
+                <section class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📝</div>
+                        <h2 class="card-title">Notes</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="notes">Notes (Payment Instructions, Terms, etc.)</label>
+                            <textarea id="notes" rows="4"
+                                placeholder="Enter payment instructions, terms and conditions, or any other notes..."></textarea>
+                        </div>
+                    </div>
+                </section>
+
+
+
+                <!-- Floating Action Bar -->
+                <section class="generate-section" style="display: flex; gap: var(--spacing-md); align-items: center;">
+                    <button type="button" id="newInvoiceBtn" class="btn btn-secondary"
+                        style="background: white; border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"
+                        title="New Invoice">
+                        ➕
                     </button>
-                </div>
-
-                <!-- Totals -->
-                <div class="totals">
-                    <div class="total-row">
-                        <span class="total-label">Subtotal:</span>
-                        <span class="total-value" id="subtotal">CA$550.00</span>
-                    </div>
-                    <div class="total-row">
-                        <span class="total-label">Shipping:</span>
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <span>CA$</span>
-                            <input type="number" id="shippingFee" value="0" min="0" step="0.01"
-                                style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
-                        </div>
-                    </div>
-                    <div class="total-row">
-                        <span class="total-label">Tax Rate:</span>
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <input type="number" id="taxRate" value="0" min="0" max="100" step="0.01"
-                                style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
-                            <span>%</span>
-                        </div>
-                    </div>
-                    <div class="total-row">
-                        <span class="total-label">Tax Amount:</span>
-                        <span class="total-value" id="taxAmount">CA$0.00</span>
-                    </div>
-                    <div class="total-row grand-total">
-                        <span class="total-label">Total:</span>
-                        <span class="total-value" id="grandTotal">CA$550.00</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Notes -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="card-icon">📝</div>
-                    <h2 class="card-title">Notes</h2>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="notes">Notes (Payment Instructions, Terms, etc.)</label>
-                        <textarea id="notes" rows="4"
-                            placeholder="Enter payment instructions, terms and conditions, or any other notes..."></textarea>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Data Management -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="card-icon">💾</div>
-                    <h2 class="card-title">Data Management</h2>
-                </div>
-                <p style="margin-bottom: var(--spacing-md); color: var(--muted-foreground); font-size: 0.875rem;">
-                    Backup your saved profiles and invoice history to a file or restore from a previous backup.
-                </p>
-                <div class="form-group" style="display: flex; gap: var(--spacing-md);">
-                    <button type="button" id="exportDataBtn" class="btn btn-secondary">
-                        ⬇️ Export Backup
+                    <button type="button" id="saveInvoiceBtn" class="btn btn-secondary"
+                        style="background: white; border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"
+                        title="Save Invoice">
+                        💾
                     </button>
-                    <button type="button" id="importDataBtn" class="btn btn-secondary">
-                        ⬆️ Import Backup
+                    <button type="button" id="generatePdfBtn" class="btn-generate">
+                        <span class="btn-text">Generate</span>
                     </button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;">
-                </div>
-            </section>
+                    <div id="statusMessage"></div>
+                </section>
+            </div>
 
-            <!-- Invoice History -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="card-icon">📜</div>
-                    <h2 class="card-title">Invoice History</h2>
-                </div>
-                <div class="table-wrapper">
-                    <table id="invoiceHistoryTable">
-                        <thead>
-                            <tr>
-                                <th>Invoice #</th>
-                                <th>Date</th>
-                                <th>Client</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="invoiceHistoryBody">
-                            <!-- Invoices will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+            <!-- History Tab -->
+            <div id="history-tab" class="tab-content">
+                <section class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📜</div>
+                        <h2 class="card-title">Invoice History</h2>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="invoiceHistoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoiceHistoryBody">
+                                <!-- Invoices will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
 
-            <!-- Floating Action Bar -->
-            <section class="generate-section" style="display: flex; gap: var(--spacing-md); align-items: center;">
-                <button type="button" id="newInvoiceBtn" class="btn btn-secondary"
-                    style="background: white; border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"
-                    title="New Invoice">
-                    ➕
-                </button>
-                <button type="button" id="saveInvoiceBtn" class="btn btn-secondary"
-                    style="background: white; border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"
-                    title="Save Invoice">
-                    💾
-                </button>
-                <button type="button" id="generatePdfBtn" class="btn-generate">
-                    <span class="btn-text">Generate</span>
-                </button>
-                <div id="statusMessage"></div>
-            </section>
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <section class="card">
+                    <div class="card-header">
+                        <div class="card-icon">💾</div>
+                        <h2 class="card-title">Data Management</h2>
+                    </div>
+                    <p style="margin-bottom: var(--spacing-md); color: var(--muted-foreground); font-size: 0.875rem;">
+                        Backup your saved profiles and invoice history to a file or restore from a previous backup.
+                    </p>
+                    <div class="form-group" style="display: flex; gap: var(--spacing-md);">
+                        <button type="button" id="exportDataBtn" class="btn btn-secondary">
+                            ⬇️ Export Backup
+                        </button>
+                        <button type="button" id="importDataBtn" class="btn btn-secondary">
+                            ⬆️ Import Backup
+                        </button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
