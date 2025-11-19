@@ -235,6 +235,26 @@
                 </div>
             </section>
 
+            <!-- Data Management -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="card-icon">💾</div>
+                    <h2 class="card-title">Data Management</h2>
+                </div>
+                <p style="margin-bottom: var(--spacing-md); color: var(--muted-foreground); font-size: 0.875rem;">
+                    Backup your saved profiles to a file or restore from a previous backup.
+                </p>
+                <div class="form-group" style="display: flex; gap: var(--spacing-md);">
+                    <button type="button" id="exportDataBtn" class="btn btn-secondary">
+                        ⬇️ Export Backup
+                    </button>
+                    <button type="button" id="importDataBtn" class="btn btn-secondary">
+                        ⬆️ Import Backup
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                </div>
+            </section>
+
             <!-- Generate Button -->
             <section class="generate-section">
                 <button type="button" id="generatePdfBtn" class="btn-generate">

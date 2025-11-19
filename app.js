@@ -43,6 +43,11 @@
         paymentMethod: document.getElementById('paymentMethod'),
         taxRate: document.getElementById('taxRate'),
 
+        // Data Management
+        exportDataBtn: document.getElementById('exportDataBtn'),
+        importDataBtn: document.getElementById('importDataBtn'),
+        importFile: document.getElementById('importFile'),
+
         // Totals
         subtotal: document.getElementById('subtotal'),
         shippingFee: document.getElementById('shippingFee'),
@@ -83,6 +88,11 @@
         elements.clientSelect.addEventListener('change', loadSelectedClient);
         elements.saveClientBtn.addEventListener('click', saveClient);
         elements.deleteClientBtn.addEventListener('click', deleteClient);
+
+        // Data Management
+        elements.exportDataBtn.addEventListener('click', exportData);
+        elements.importDataBtn.addEventListener('click', () => elements.importFile.click());
+        elements.importFile.addEventListener('change', importData);
 
         // Delegate event listeners for dynamic items
         elements.itemsTableBody.addEventListener('input', handleItemInput);
@@ -440,8 +450,73 @@
             elements.recipientEmail.value = '';
             elements.recipientPhone.value = '';
 
-            showMessage(`✅ Client "${client.name}" deleted successfully!`);
+            showMessage(`🗑️ Client "${client.name}" deleted successfully!`);
         }
+    }
+
+    // --- Data Management ---
+
+    // Export data to JSON file
+    function exportData() {
+        const data = {
+            issuers: localStorage.getItem(ISSUERS_STORAGE_KEY),
+            clients: localStorage.getItem(CLIENTS_STORAGE_KEY),
+            timestamp: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `invoice-data-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showMessage('✅ Data exported successfully!');
+    }
+
+    // Import data from JSON file
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                let importedCount = 0;
+
+                if (data.issuers) {
+                    localStorage.setItem(ISSUERS_STORAGE_KEY, data.issuers);
+                    importedCount++;
+                }
+
+                if (data.clients) {
+                    localStorage.setItem(CLIENTS_STORAGE_KEY, data.clients);
+                    importedCount++;
+                }
+
+                if (importedCount > 0) {
+                    loadIssuerList();
+                    loadClientList();
+                    showMessage('✅ Data restored successfully!');
+                } else {
+                    showMessage('⚠️ No valid data found in backup file', 'error');
+                }
+
+            } catch (err) {
+                console.error('Import error:', err);
+                showMessage('❌ Invalid backup file', 'error');
+            }
+
+            // Reset file input
+            event.target.value = '';
+        };
+        reader.readAsText(file);
     }
 
     // Handle company logo upload
