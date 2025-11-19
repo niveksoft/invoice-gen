@@ -359,59 +359,26 @@ td input {
   z-index: 100;
 }
 
-.btn-generate {
-  padding: 0.875rem;
-  font-size: 0.875rem;
+.btn-circle-action {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: white;
   color: var(--zinc-900);
   border: 1px solid var(--zinc-300);
-  border-radius: 50%;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: all 0.2s ease;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  display: flex;
-  align-items: center;
-  gap: 0;
-  width: 48px;
-  height: 48px;
-  justify-content: center;
-  overflow: hidden;
 }
 
-.btn-text {
-  max-width: 0;
-  opacity: 0;
-  white-space: nowrap;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-generate::after {
-  content: '📄';
-  flex-shrink: 0;
-}
-
-.btn-generate:hover {
-  border-radius: var(--radius);
-  width: auto;
-  padding: 0.875rem 1.25rem;
-  gap: var(--spacing-sm);
-}
-
-.btn-generate:hover .btn-text {
-  max-width: 100px;
-  opacity: 1;
-}
-
-.btn-generate:hover:not(:disabled) {
+.btn-circle-action:hover:not(:disabled) {
   background: var(--zinc-50);
   border-color: var(--zinc-400);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
-
-.btn-generate:active {
-  transform: translateY(0);
 }
 
 #statusMessage {
