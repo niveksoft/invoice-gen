@@ -25,267 +25,287 @@
         <main>
             <!-- Editor Tab -->
             <div id="editor-tab" class="tab-content active">
-                <!-- Sender Information -->
-                <section class="card">
-                    <div class="card-header">
-                        <div class="card-icon">👤</div>
-                        <h2 class="card-title">Your Information</h2>
-                    </div>
+                <!-- Nested Tabs for Editor Sections -->
+                <div class="nested-tabs">
+                    <button class="nested-tab-btn active" data-nested-tab="your-info">👤 Your Information</button>
+                    <button class="nested-tab-btn" data-nested-tab="issued-to">🏢 Issued To</button>
+                    <button class="nested-tab-btn" data-nested-tab="invoice-details">📋 Invoice Details</button>
+                    <button class="nested-tab-btn" data-nested-tab="items">📦 Items/Services</button>
+                    <button class="nested-tab-btn" data-nested-tab="notes">📝 Notes</button>
+                </div>
 
-                    <!-- Issuer Profile Selection -->
-                    <div
-                        style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
-                        <div class="form-group">
-                            <label for="issuerSelect">Select Saved Profile</label>
-                            <div style="display: flex; gap: var(--spacing-sm);">
-                                <select id="issuerSelect" style="flex: 1;">
-                                    <option value="">-- Select a profile --</option>
+                <!-- Your Information Tab -->
+                <div id="your-info-tab" class="nested-tab-content active">
+                    <section class="card">
+                        <div class="card-header">
+                            <div class="card-icon">👤</div>
+                            <h2 class="card-title">Your Information</h2>
+                        </div>
+
+                        <!-- Issuer Profile Selection -->
+                        <div
+                            style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
+                            <div class="form-group">
+                                <label for="issuerSelect">Select Saved Profile</label>
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <select id="issuerSelect" style="flex: 1;">
+                                        <option value="">-- Select a profile --</option>
+                                    </select>
+                                    <button type="button" id="saveIssuerBtn" class="btn btn-secondary btn-sm"
+                                        title="Save current profile">💾</button>
+                                    <button type="button" id="deleteIssuerBtn" class="btn btn-secondary btn-sm"
+                                        title="Delete selected profile">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="senderFirstName">First Name</label>
+                                <input type="text" id="senderFirstName" placeholder="First Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderLastName">Last Name</label>
+                                <input type="text" id="senderLastName" placeholder="Last Name" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="senderAddressLine1">Address Line 1</label>
+                                <input type="text" id="senderAddressLine1" placeholder="Street address" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="senderAddressLine2">Address Line 2 (Optional)</label>
+                                <input type="text" id="senderAddressLine2" placeholder="Apartment, suite, etc.">
+                            </div>
+                            <div class="form-group">
+                                <label for="senderCity">City</label>
+                                <input type="text" id="senderCity" placeholder="City" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderCountry">Country</label>
+                                <input type="text" id="senderCountry" placeholder="Country" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderPostalCode">Postal Code</label>
+                                <input type="text" id="senderPostalCode" placeholder="Postal Code" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderEmail">Email</label>
+                                <input type="email" id="senderEmail" placeholder="Email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderPhone">Phone</label>
+                                <input type="tel" id="senderPhone" placeholder="Phone number" required>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Invoice Details Tab -->
+                <div id="invoice-details-tab" class="nested-tab-content">
+                    <section class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📋</div>
+                            <h2 class="card-title">Invoice Details</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="invoiceNumber">Invoice Number</label>
+                                <input type="text" id="invoiceNumber" placeholder="Invoice Number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentMethod">Payment Method</label>
+                                <input type="text" id="paymentMethod"
+                                    placeholder="e.g., Interac, Bank Transfer, Credit Card" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="issueDate">Issue Date</label>
+                                <input type="date" id="issueDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="dueDate">Due Date</label>
+                                <input type="date" id="dueDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="invoiceStatus">Status (Watermark)</label>
+                                <select id="invoiceStatus">
+                                    <option value="">None</option>
+                                    <option value="DRAFT">Draft</option>
+                                    <option value="PAID">Paid</option>
+                                    <option value="OVERDUE">Overdue</option>
+                                    <option value="VOID">Void</option>
                                 </select>
-                                <button type="button" id="saveIssuerBtn" class="btn btn-secondary btn-sm"
-                                    title="Save current profile">💾</button>
-                                <button type="button" id="deleteIssuerBtn" class="btn btn-secondary btn-sm"
-                                    title="Delete selected profile">🗑️</button>
                             </div>
                         </div>
-                    </div>
+                    </section>
+                </div>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="senderFirstName">First Name</label>
-                            <input type="text" id="senderFirstName" placeholder="First Name" required>
+                <!-- Issued To Tab -->
+                <div id="issued-to-tab" class="nested-tab-content">
+                    <section class="card">
+                        <div class="card-header">
+                            <div class="card-icon">🏢</div>
+                            <h2 class="card-title">Issued To</h2>
                         </div>
-                        <div class="form-group">
-                            <label for="senderLastName">Last Name</label>
-                            <input type="text" id="senderLastName" placeholder="Last Name" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="senderAddressLine1">Address Line 1</label>
-                            <input type="text" id="senderAddressLine1" placeholder="Street address" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="senderAddressLine2">Address Line 2 (Optional)</label>
-                            <input type="text" id="senderAddressLine2" placeholder="Apartment, suite, etc.">
-                        </div>
-                        <div class="form-group">
-                            <label for="senderCity">City</label>
-                            <input type="text" id="senderCity" placeholder="City" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="senderCountry">Country</label>
-                            <input type="text" id="senderCountry" placeholder="Country" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="senderPostalCode">Postal Code</label>
-                            <input type="text" id="senderPostalCode" placeholder="Postal Code" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="senderEmail">Email</label>
-                            <input type="email" id="senderEmail" placeholder="Email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="senderPhone">Phone</label>
-                            <input type="tel" id="senderPhone" placeholder="Phone number" required>
-                        </div>
-                </section>
 
-                <!-- Invoice Details -->
-                <section class="card">
-                    <div class="card-header">
-                        <div class="card-icon">📋</div>
-                        <h2 class="card-title">Invoice Details</h2>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="invoiceNumber">Invoice Number</label>
-                            <input type="text" id="invoiceNumber" placeholder="Invoice Number" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentMethod">Payment Method</label>
-                            <input type="text" id="paymentMethod"
-                                placeholder="e.g., Interac, Bank Transfer, Credit Card" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="issueDate">Issue Date</label>
-                            <input type="date" id="issueDate">
-                        </div>
-                        <div class="form-group">
-                            <label for="dueDate">Due Date</label>
-                            <input type="date" id="dueDate">
-                        </div>
-                        <div class="form-group">
-                            <label for="invoiceStatus">Status (Watermark)</label>
-                            <select id="invoiceStatus">
-                                <option value="">None</option>
-                                <option value="DRAFT">Draft</option>
-                                <option value="PAID">Paid</option>
-                                <option value="OVERDUE">Overdue</option>
-                                <option value="VOID">Void</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Recipient Information -->
-                <section class="card">
-                    <div class="card-header">
-                        <div class="card-icon">🏢</div>
-                        <h2 class="card-title">Issued To</h2>
-                    </div>
-
-                    <!-- Client Selection -->
-                    <div
-                        style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
-                        <div class="form-group">
-                            <label for="clientSelect">Select Saved Client</label>
-                            <div style="display: flex; gap: var(--spacing-sm);">
-                                <select id="clientSelect" style="flex: 1;">
-                                    <option value="">-- Select a client --</option>
-                                </select>
-                                <button type="button" id="saveClientBtn" class="btn btn-secondary btn-sm"
-                                    title="Save current client">💾</button>
-                                <button type="button" id="deleteClientBtn" class="btn btn-secondary btn-sm"
-                                    title="Delete selected client">🗑️</button>
+                        <!-- Client Selection -->
+                        <div
+                            style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border);">
+                            <div class="form-group">
+                                <label for="clientSelect">Select Saved Client</label>
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <select id="clientSelect" style="flex: 1;">
+                                        <option value="">-- Select a client --</option>
+                                    </select>
+                                    <button type="button" id="saveClientBtn" class="btn btn-secondary btn-sm"
+                                        title="Save current client">💾</button>
+                                    <button type="button" id="deleteClientBtn" class="btn btn-secondary btn-sm"
+                                        title="Delete selected client">🗑️</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="recipientFirstName">First Name</label>
-                            <input type="text" id="recipientFirstName" placeholder="First Name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientLastName">Last Name</label>
-                            <input type="text" id="recipientLastName" placeholder="Last Name" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="recipientAddressLine1">Address Line 1</label>
-                            <input type="text" id="recipientAddressLine1" placeholder="Street address" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="recipientAddressLine2">Address Line 2 (Optional)</label>
-                            <input type="text" id="recipientAddressLine2" placeholder="Apartment, suite, etc.">
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientCity">City</label>
-                            <input type="text" id="recipientCity" placeholder="City" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientCountry">Country</label>
-                            <input type="text" id="recipientCountry" placeholder="Country" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientPostalCode">Postal Code</label>
-                            <input type="text" id="recipientPostalCode" placeholder="Postal Code" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientEmail">Email</label>
-                            <input type="email" id="recipientEmail" placeholder="Email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="recipientPhone">Phone</label>
-                            <input type="tel" id="recipientPhone" placeholder="Phone number" required>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Line Items -->
-                <section class="card">
-                    <div class="card-header">
-                        <div class="card-icon">📦</div>
-                        <h2 class="card-title">Items / Services</h2>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table id="itemsTable">
-                            <thead>
-                                <tr>
-                                    <th style="width: 50%">Product/Service</th>
-                                    <th style="width: 15%">Quantity</th>
-                                    <th style="width: 20%">Unit Price (CA$)</th>
-                                    <th style="width: 15%">Amount (CA$)</th>
-                                    <th style="width: 5%"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="itemsTableBody">
-                                <tr data-row="0">
-                                    <td>
-                                        <input type="text" class="item-description"
-                                            placeholder="Product or service description" required>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="item-quantity" min="1" value="1" step="1" required>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="item-price" min="0" value="0" step="0.01" required>
-                                    </td>
-                                    <td class="item-amount">CA$0.00</td>
-                                    <td>
-                                        <button type="button" class="btn btn-secondary btn-sm remove-item"
-                                            title="Remove item">×</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button type="button" id="addItemBtn" class="btn btn-secondary">
-                            <span>+ Add Line Item</span>
-                        </button>
-                    </div>
-
-                    <!-- Totals -->
-                    <div class="totals">
-                        <div class="total-row">
-                            <span class="total-label">Subtotal:</span>
-                            <span class="total-value" id="subtotal">CA$550.00</span>
-                        </div>
-                        <div class="total-row">
-                            <span class="total-label">Shipping:</span>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <span>CA$</span>
-                                <input type="number" id="shippingFee" value="0" min="0" step="0.01"
-                                    style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="recipientFirstName">First Name</label>
+                                <input type="text" id="recipientFirstName" placeholder="First Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientLastName">Last Name</label>
+                                <input type="text" id="recipientLastName" placeholder="Last Name" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="recipientAddressLine1">Address Line 1</label>
+                                <input type="text" id="recipientAddressLine1" placeholder="Street address" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="recipientAddressLine2">Address Line 2 (Optional)</label>
+                                <input type="text" id="recipientAddressLine2" placeholder="Apartment, suite, etc.">
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientCity">City</label>
+                                <input type="text" id="recipientCity" placeholder="City" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientCountry">Country</label>
+                                <input type="text" id="recipientCountry" placeholder="Country" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientPostalCode">Postal Code</label>
+                                <input type="text" id="recipientPostalCode" placeholder="Postal Code" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientEmail">Email</label>
+                                <input type="email" id="recipientEmail" placeholder="Email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipientPhone">Phone</label>
+                                <input type="tel" id="recipientPhone" placeholder="Phone number" required>
                             </div>
                         </div>
-                        <div class="total-row">
-                            <span class="total-label">Tax Rate:</span>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="number" id="taxRate" value="0" min="0" max="100" step="0.01"
-                                    style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
-                                <span>%</span>
+                    </section>
+                </div>
+
+                <!-- Items/Services Tab -->
+                <div id="items-tab" class="nested-tab-content">
+                    <section class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📦</div>
+                            <h2 class="card-title">Items / Services</h2>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table id="itemsTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50%">Product/Service</th>
+                                        <th style="width: 15%">Quantity</th>
+                                        <th style="width: 20%">Unit Price (CA$)</th>
+                                        <th style="width: 15%">Amount (CA$)</th>
+                                        <th style="width: 5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsTableBody">
+                                    <tr data-row="0">
+                                        <td>
+                                            <input type="text" class="item-description"
+                                                placeholder="Product or service description" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="item-quantity" min="1" value="1" step="1"
+                                                required>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="item-price" min="0" value="0" step="0.01"
+                                                required>
+                                        </td>
+                                        <td class="item-amount">CA$0.00</td>
+                                        <td>
+                                            <button type="button" class="btn btn-secondary btn-sm remove-item"
+                                                title="Remove item">×</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="button" id="addItemBtn" class="btn btn-secondary">
+                                <span>+ Add Line Item</span>
+                            </button>
+                        </div>
+
+                        <!-- Totals -->
+                        <div class="totals">
+                            <div class="total-row">
+                                <span class="total-label">Subtotal:</span>
+                                <span class="total-value" id="subtotal">CA$550.00</span>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label">Shipping:</span>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span>CA$</span>
+                                    <input type="number" id="shippingFee" value="0" min="0" step="0.01"
+                                        style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
+                                </div>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label">Tax Rate:</span>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="number" id="taxRate" value="0" min="0" max="100" step="0.01"
+                                        style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: right;">
+                                    <span>%</span>
+                                </div>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label">Tax Amount:</span>
+                                <span class="total-value" id="taxAmount">CA$0.00</span>
+                            </div>
+                            <div class="total-row grand-total">
+                                <span class="total-label">Total:</span>
+                                <span class="total-value" id="grandTotal">CA$550.00</span>
                             </div>
                         </div>
-                        <div class="total-row">
-                            <span class="total-label">Tax Amount:</span>
-                            <span class="total-value" id="taxAmount">CA$0.00</span>
+                    </section>
+                </div>
+
+                <!-- Notes Tab -->
+                <div id="notes-tab" class="nested-tab-content">
+                    <section class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📝</div>
+                            <h2 class="card-title">Notes</h2>
                         </div>
-                        <div class="total-row grand-total">
-                            <span class="total-label">Total:</span>
-                            <span class="total-value" id="grandTotal">CA$550.00</span>
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="notes">Notes (Payment Instructions, Terms, etc.)</label>
+                                <textarea id="notes" rows="4"
+                                    placeholder="Enter payment instructions, terms and conditions, or any other notes..."></textarea>
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                </div>
 
-                <!-- Notes -->
-                <section class="card">
-                    <div class="card-header">
-                        <div class="card-icon">📝</div>
-                        <h2 class="card-title">Notes</h2>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label for="notes">Notes (Payment Instructions, Terms, etc.)</label>
-                            <textarea id="notes" rows="4"
-                                placeholder="Enter payment instructions, terms and conditions, or any other notes..."></textarea>
-                        </div>
-                    </div>
-                </section>
-
-
-
-                <!-- Floating Action Bar -->
+                <!-- Floating Action Bar (visible across all nested tabs) -->
                 <section class="generate-section" style="display: flex; gap: var(--spacing-md); align-items: center;">
                     <button type="button" id="newInvoiceBtn" class="btn btn-secondary btn-circle-action"
                         title="New Invoice">

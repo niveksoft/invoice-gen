@@ -136,6 +136,14 @@
                 switchTab(tabId);
             });
         });
+
+        // Nested Tab Switching (for editor sub-tabs)
+        document.querySelectorAll('.nested-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const nestedTabId = btn.dataset.nestedTab;
+                switchNestedTab(nestedTabId);
+            });
+        });
     }
 
     function switchTab(tabId) {
@@ -147,6 +155,18 @@
         // Update content
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.toggle('active', content.id === `${tabId}-tab`);
+        });
+    }
+
+    function switchNestedTab(nestedTabId) {
+        // Update nested tab buttons
+        document.querySelectorAll('.nested-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.nestedTab === nestedTabId);
+        });
+
+        // Update nested tab content
+        document.querySelectorAll('.nested-tab-content').forEach(content => {
+            content.classList.toggle('active', content.id === `${nestedTabId}-tab`);
         });
     }
 
