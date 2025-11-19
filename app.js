@@ -8,8 +8,13 @@
     // DOM Elements
     const elements = {
         // Sender Info
-        senderName: document.getElementById('senderName'),
-        senderAddress: document.getElementById('senderAddress'),
+        senderFirstName: document.getElementById('senderFirstName'),
+        senderLastName: document.getElementById('senderLastName'),
+        senderAddressLine1: document.getElementById('senderAddressLine1'),
+        senderAddressLine2: document.getElementById('senderAddressLine2'),
+        senderCity: document.getElementById('senderCity'),
+        senderCountry: document.getElementById('senderCountry'),
+        senderPostalCode: document.getElementById('senderPostalCode'),
         senderEmail: document.getElementById('senderEmail'),
         senderPhone: document.getElementById('senderPhone'),
 
@@ -25,8 +30,13 @@
         invoiceStatus: document.getElementById('invoiceStatus'),
 
         // Recipient Info
-        recipientName: document.getElementById('recipientName'),
-        recipientAddress: document.getElementById('recipientAddress'),
+        recipientFirstName: document.getElementById('recipientFirstName'),
+        recipientLastName: document.getElementById('recipientLastName'),
+        recipientAddressLine1: document.getElementById('recipientAddressLine1'),
+        recipientAddressLine2: document.getElementById('recipientAddressLine2'),
+        recipientCity: document.getElementById('recipientCity'),
+        recipientCountry: document.getElementById('recipientCountry'),
+        recipientPostalCode: document.getElementById('recipientPostalCode'),
         recipientEmail: document.getElementById('recipientEmail'),
         recipientPhone: document.getElementById('recipientPhone'),
 
@@ -277,29 +287,53 @@
         issuers.forEach((issuer, index) => {
             const option = document.createElement('option');
             option.value = index;
-            option.textContent = issuer.name;
+            // Display full name from firstName and lastName, or fallback to old 'name' field
+            const displayName = issuer.firstName && issuer.lastName
+                ? `${issuer.firstName} ${issuer.lastName}`
+                : (issuer.name || 'Unknown');
+            option.textContent = displayName;
             select.appendChild(option);
         });
     }
 
     // Save current issuer
     function saveIssuer() {
-        const name = elements.senderName.value.trim();
-        const address = elements.senderAddress.value.trim();
+        const firstName = elements.senderFirstName.value.trim();
+        const lastName = elements.senderLastName.value.trim();
+        const addressLine1 = elements.senderAddressLine1.value.trim();
+        const addressLine2 = elements.senderAddressLine2.value.trim();
+        const city = elements.senderCity.value.trim();
+        const country = elements.senderCountry.value.trim();
+        const postalCode = elements.senderPostalCode.value.trim();
         const email = elements.senderEmail.value.trim();
         const phone = elements.senderPhone.value.trim();
 
-        if (!name) {
-            showMessage('❌ Please enter your name before saving', 'error');
-            elements.senderName.focus();
+        if (!firstName || !lastName) {
+            showMessage('❌ Please enter your first and last name before saving', 'error');
+            if (!firstName) elements.senderFirstName.focus();
+            else elements.senderLastName.focus();
             return;
         }
 
-        const issuer = { name, address, email, phone };
+        const name = `${firstName} ${lastName}`;
+        const issuer = {
+            firstName,
+            lastName,
+            addressLine1,
+            addressLine2,
+            city,
+            country,
+            postalCode,
+            email,
+            phone
+        };
         const issuers = getIssuers();
 
         // Check if issuer already exists
-        const existingIndex = issuers.findIndex(i => i.name.toLowerCase() === name.toLowerCase());
+        const existingIndex = issuers.findIndex(i =>
+            i.firstName?.toLowerCase() === firstName.toLowerCase() &&
+            i.lastName?.toLowerCase() === lastName.toLowerCase()
+        );
 
         if (existingIndex >= 0) {
             // Update existing issuer
@@ -326,8 +360,13 @@
 
         if (selectedIndex === '') {
             // Clear fields if "-- Select a profile --" is chosen
-            elements.senderName.value = '';
-            elements.senderAddress.value = '';
+            elements.senderFirstName.value = '';
+            elements.senderLastName.value = '';
+            elements.senderAddressLine1.value = '';
+            elements.senderAddressLine2.value = '';
+            elements.senderCity.value = '';
+            elements.senderCountry.value = '';
+            elements.senderPostalCode.value = '';
             elements.senderEmail.value = '';
             elements.senderPhone.value = '';
             return;
@@ -337,8 +376,14 @@
         const issuer = issuers[selectedIndex];
 
         if (issuer) {
-            elements.senderName.value = issuer.name || '';
-            elements.senderAddress.value = issuer.address || '';
+            // Support both new structured fields and old single name/address fields
+            elements.senderFirstName.value = issuer.firstName || '';
+            elements.senderLastName.value = issuer.lastName || '';
+            elements.senderAddressLine1.value = issuer.addressLine1 || issuer.address || '';
+            elements.senderAddressLine2.value = issuer.addressLine2 || '';
+            elements.senderCity.value = issuer.city || '';
+            elements.senderCountry.value = issuer.country || '';
+            elements.senderPostalCode.value = issuer.postalCode || '';
             elements.senderEmail.value = issuer.email || '';
             elements.senderPhone.value = issuer.phone || '';
         }
@@ -355,19 +400,27 @@
 
         const issuers = getIssuers();
         const issuer = issuers[selectedIndex];
+        const displayName = issuer.firstName && issuer.lastName
+            ? `${issuer.firstName} ${issuer.lastName}`
+            : (issuer.name || 'this profile');
 
-        if (confirm(`Are you sure you want to delete "${issuer.name}"?`)) {
+        if (confirm(`Are you sure you want to delete "${displayName}"?`)) {
             issuers.splice(selectedIndex, 1);
             saveIssuersToStorage(issuers);
             loadIssuerList();
 
             // Clear form fields
-            elements.senderName.value = '';
-            elements.senderAddress.value = '';
+            elements.senderFirstName.value = '';
+            elements.senderLastName.value = '';
+            elements.senderAddressLine1.value = '';
+            elements.senderAddressLine2.value = '';
+            elements.senderCity.value = '';
+            elements.senderCountry.value = '';
+            elements.senderPostalCode.value = '';
             elements.senderEmail.value = '';
             elements.senderPhone.value = '';
 
-            showMessage(`✅ Profile "${issuer.name}" deleted successfully!`);
+            showMessage(`✅ Profile "${displayName}" deleted successfully!`);
         }
     }
 
@@ -396,29 +449,53 @@
         clients.forEach((client, index) => {
             const option = document.createElement('option');
             option.value = index;
-            option.textContent = client.name;
+            // Display full name from firstName and lastName, or fallback to old 'name' field
+            const displayName = client.firstName && client.lastName
+                ? `${client.firstName} ${client.lastName}`
+                : (client.name || 'Unknown');
+            option.textContent = displayName;
             select.appendChild(option);
         });
     }
 
     // Save current client
     function saveClient() {
-        const name = elements.recipientName.value.trim();
-        const address = elements.recipientAddress.value.trim();
+        const firstName = elements.recipientFirstName.value.trim();
+        const lastName = elements.recipientLastName.value.trim();
+        const addressLine1 = elements.recipientAddressLine1.value.trim();
+        const addressLine2 = elements.recipientAddressLine2.value.trim();
+        const city = elements.recipientCity.value.trim();
+        const country = elements.recipientCountry.value.trim();
+        const postalCode = elements.recipientPostalCode.value.trim();
         const email = elements.recipientEmail.value.trim();
         const phone = elements.recipientPhone.value.trim();
 
-        if (!name) {
-            showMessage('❌ Please enter a client name before saving', 'error');
-            elements.recipientName.focus();
+        if (!firstName || !lastName) {
+            showMessage('❌ Please enter client first and last name before saving', 'error');
+            if (!firstName) elements.recipientFirstName.focus();
+            else elements.recipientLastName.focus();
             return;
         }
 
-        const client = { name, address, email, phone };
+        const name = `${firstName} ${lastName}`;
+        const client = {
+            firstName,
+            lastName,
+            addressLine1,
+            addressLine2,
+            city,
+            country,
+            postalCode,
+            email,
+            phone
+        };
         const clients = getClients();
 
         // Check if client already exists
-        const existingIndex = clients.findIndex(c => c.name.toLowerCase() === name.toLowerCase());
+        const existingIndex = clients.findIndex(c =>
+            c.firstName?.toLowerCase() === firstName.toLowerCase() &&
+            c.lastName?.toLowerCase() === lastName.toLowerCase()
+        );
 
         if (existingIndex >= 0) {
             // Update existing client
@@ -445,8 +522,13 @@
 
         if (selectedIndex === '') {
             // Clear fields if "-- Select a client --" is chosen
-            elements.recipientName.value = '';
-            elements.recipientAddress.value = '';
+            elements.recipientFirstName.value = '';
+            elements.recipientLastName.value = '';
+            elements.recipientAddressLine1.value = '';
+            elements.recipientAddressLine2.value = '';
+            elements.recipientCity.value = '';
+            elements.recipientCountry.value = '';
+            elements.recipientPostalCode.value = '';
             elements.recipientEmail.value = '';
             elements.recipientPhone.value = '';
             return;
@@ -456,8 +538,14 @@
         const client = clients[selectedIndex];
 
         if (client) {
-            elements.recipientName.value = client.name || '';
-            elements.recipientAddress.value = client.address || '';
+            // Support both new structured fields and old single name/address fields
+            elements.recipientFirstName.value = client.firstName || '';
+            elements.recipientLastName.value = client.lastName || '';
+            elements.recipientAddressLine1.value = client.addressLine1 || client.address || '';
+            elements.recipientAddressLine2.value = client.addressLine2 || '';
+            elements.recipientCity.value = client.city || '';
+            elements.recipientCountry.value = client.country || '';
+            elements.recipientPostalCode.value = client.postalCode || '';
             elements.recipientEmail.value = client.email || '';
             elements.recipientPhone.value = client.phone || '';
         }
@@ -474,19 +562,27 @@
 
         const clients = getClients();
         const client = clients[selectedIndex];
+        const displayName = client.firstName && client.lastName
+            ? `${client.firstName} ${client.lastName}`
+            : (client.name || 'this client');
 
-        if (confirm(`Are you sure you want to delete "${client.name}"?`)) {
+        if (confirm(`Are you sure you want to delete "${displayName}"?`)) {
             clients.splice(selectedIndex, 1);
             saveClientsToStorage(clients);
             loadClientList();
 
             // Clear form fields
-            elements.recipientName.value = '';
-            elements.recipientAddress.value = '';
+            elements.recipientFirstName.value = '';
+            elements.recipientLastName.value = '';
+            elements.recipientAddressLine1.value = '';
+            elements.recipientAddressLine2.value = '';
+            elements.recipientCity.value = '';
+            elements.recipientCountry.value = '';
+            elements.recipientPostalCode.value = '';
             elements.recipientEmail.value = '';
             elements.recipientPhone.value = '';
 
-            showMessage(`🗑️ Client "${client.name}" deleted successfully!`);
+            showMessage(`🗑️ Client "${displayName}" deleted successfully!`);
         }
     }
 
@@ -673,9 +769,14 @@
         elements.clientSelect.value = '';
         elements.issuerSelect.value = '';
 
-        // Clear inputs
-        elements.recipientName.value = '';
-        elements.recipientAddress.value = '';
+        // Clear recipient inputs
+        elements.recipientFirstName.value = '';
+        elements.recipientLastName.value = '';
+        elements.recipientAddressLine1.value = '';
+        elements.recipientAddressLine2.value = '';
+        elements.recipientCity.value = '';
+        elements.recipientCountry.value = '';
+        elements.recipientPostalCode.value = '';
         elements.recipientEmail.value = '';
         elements.recipientPhone.value = '';
 
@@ -721,10 +822,15 @@
 
             // Client info
             clientId: elements.clientSelect.value,
-            clientName: elements.recipientName.value,
+            clientName: `${elements.recipientFirstName.value} ${elements.recipientLastName.value}`.trim(),
             recipient: {
-                name: elements.recipientName.value,
-                address: elements.recipientAddress.value,
+                firstName: elements.recipientFirstName.value,
+                lastName: elements.recipientLastName.value,
+                addressLine1: elements.recipientAddressLine1.value,
+                addressLine2: elements.recipientAddressLine2.value,
+                city: elements.recipientCity.value,
+                country: elements.recipientCountry.value,
+                postalCode: elements.recipientPostalCode.value,
                 email: elements.recipientEmail.value,
                 phone: elements.recipientPhone.value
             },
@@ -732,8 +838,13 @@
             // Sender info
             issuerId: elements.issuerSelect.value,
             sender: {
-                name: elements.senderName.value,
-                address: elements.senderAddress.value,
+                firstName: elements.senderFirstName.value,
+                lastName: elements.senderLastName.value,
+                addressLine1: elements.senderAddressLine1.value,
+                addressLine2: elements.senderAddressLine2.value,
+                city: elements.senderCity.value,
+                country: elements.senderCountry.value,
+                postalCode: elements.senderPostalCode.value,
                 email: elements.senderEmail.value,
                 phone: elements.senderPhone.value
             },
@@ -785,15 +896,25 @@
         elements.paymentMethod.value = invoice.paymentMethod;
         elements.notes.value = invoice.notes;
 
-        // Recipient
-        elements.recipientName.value = invoice.recipient.name;
-        elements.recipientAddress.value = invoice.recipient.address;
+        // Recipient - support both new and old formats
+        elements.recipientFirstName.value = invoice.recipient.firstName || '';
+        elements.recipientLastName.value = invoice.recipient.lastName || '';
+        elements.recipientAddressLine1.value = invoice.recipient.addressLine1 || invoice.recipient.address || '';
+        elements.recipientAddressLine2.value = invoice.recipient.addressLine2 || '';
+        elements.recipientCity.value = invoice.recipient.city || '';
+        elements.recipientCountry.value = invoice.recipient.country || '';
+        elements.recipientPostalCode.value = invoice.recipient.postalCode || '';
         elements.recipientEmail.value = invoice.recipient.email;
         elements.recipientPhone.value = invoice.recipient.phone;
 
-        // Sender
-        elements.senderName.value = invoice.sender.name;
-        elements.senderAddress.value = invoice.sender.address;
+        // Sender - support both new and old formats
+        elements.senderFirstName.value = invoice.sender.firstName || '';
+        elements.senderLastName.value = invoice.sender.lastName || '';
+        elements.senderAddressLine1.value = invoice.sender.addressLine1 || invoice.sender.address || '';
+        elements.senderAddressLine2.value = invoice.sender.addressLine2 || '';
+        elements.senderCity.value = invoice.sender.city || '';
+        elements.senderCountry.value = invoice.sender.country || '';
+        elements.senderPostalCode.value = invoice.sender.postalCode || '';
         elements.senderEmail.value = invoice.sender.email;
         elements.senderPhone.value = invoice.sender.phone;
 
@@ -932,7 +1053,8 @@
             // Sender Information (Left side)
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text(elements.senderName.value, margin, yPos);
+            const senderFullName = `${elements.senderFirstName.value} ${elements.senderLastName.value}`.trim();
+            doc.text(senderFullName, margin, yPos);
             yPos += 6;
 
             doc.setFontSize(10);
@@ -966,8 +1088,13 @@
             doc.text(formatDate(elements.dueDate.value), rightX, rightY, { align: 'right' });
             rightY += 5;
 
-            // Continue sender info on left
-            yPos += addText(elements.senderAddress.value, margin, yPos, { maxWidth: 100 });
+            // Continue sender info on left - format address properly
+            yPos += addText(elements.senderAddressLine1.value, margin, yPos, { maxWidth: 100 });
+            if (elements.senderAddressLine2.value.trim()) {
+                yPos += addText(elements.senderAddressLine2.value, margin, yPos, { maxWidth: 100 });
+            }
+            const senderCityLine = `${elements.senderCity.value}, ${elements.senderCountry.value} ${elements.senderPostalCode.value}`.trim();
+            yPos += addText(senderCityLine, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.senderEmail.value, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.senderPhone.value, margin, yPos, { maxWidth: 100 });
             yPos += 10;
@@ -980,12 +1107,18 @@
 
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text(elements.recipientName.value, margin, yPos);
+            const recipientFullName = `${elements.recipientFirstName.value} ${elements.recipientLastName.value}`.trim();
+            doc.text(recipientFullName, margin, yPos);
             yPos += 5;
 
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            yPos += addText(elements.recipientAddress.value, margin, yPos, { maxWidth: 100 });
+            yPos += addText(elements.recipientAddressLine1.value, margin, yPos, { maxWidth: 100 });
+            if (elements.recipientAddressLine2.value.trim()) {
+                yPos += addText(elements.recipientAddressLine2.value, margin, yPos, { maxWidth: 100 });
+            }
+            const recipientCityLine = `${elements.recipientCity.value}, ${elements.recipientCountry.value} ${elements.recipientPostalCode.value}`.trim();
+            yPos += addText(recipientCityLine, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.recipientEmail.value, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.recipientPhone.value, margin, yPos, { maxWidth: 100 });
             yPos += 10;
@@ -1240,18 +1373,33 @@
     function validateForm() {
         // 1. Check main form fields
         const requiredFields = [
-            { element: elements.senderName, name: 'Your Name' },
-            { element: elements.senderAddress, name: 'Your Address' },
+            // Sender fields
+            { element: elements.senderFirstName, name: 'Your First Name' },
+            { element: elements.senderLastName, name: 'Your Last Name' },
+            { element: elements.senderAddressLine1, name: 'Your Address Line 1' },
+            // senderAddressLine2 is optional
+            { element: elements.senderCity, name: 'Your City' },
+            { element: elements.senderCountry, name: 'Your Country' },
+            { element: elements.senderPostalCode, name: 'Your Postal Code' },
             { element: elements.senderEmail, name: 'Your Email' },
             { element: elements.senderPhone, name: 'Your Phone' },
+
+            // Invoice details
             { element: elements.invoiceNumber, name: 'Invoice Number' },
             { element: elements.issueDate, name: 'Issue Date' },
             { element: elements.dueDate, name: 'Due Date' },
-            { element: elements.recipientName, name: 'Recipient Name' },
-            { element: elements.recipientAddress, name: 'Recipient Address' },
+            { element: elements.paymentMethod, name: 'Payment Method' },
+
+            // Recipient fields
+            { element: elements.recipientFirstName, name: 'Recipient First Name' },
+            { element: elements.recipientLastName, name: 'Recipient Last Name' },
+            { element: elements.recipientAddressLine1, name: 'Recipient Address Line 1' },
+            // recipientAddressLine2 is optional
+            { element: elements.recipientCity, name: 'Recipient City' },
+            { element: elements.recipientCountry, name: 'Recipient Country' },
+            { element: elements.recipientPostalCode, name: 'Recipient Postal Code' },
             { element: elements.recipientEmail, name: 'Recipient Email' },
-            { element: elements.recipientPhone, name: 'Recipient Phone' },
-            { element: elements.paymentMethod, name: 'Payment Method' }
+            { element: elements.recipientPhone, name: 'Recipient Phone' }
         ];
 
         for (const field of requiredFields) {
