@@ -807,6 +807,11 @@
     function saveInvoice(silent = false) {
         if (typeof silent !== 'boolean') silent = false;
 
+        // Validate form before saving (unless silent mode for auto-save before PDF generation)
+        if (!silent && !validateForm()) {
+            return false;
+        }
+
         if (!elements.invoiceNumber.value) {
             if (!silent) showMessage('⚠️ Invoice number is required', 'error');
             return false;
