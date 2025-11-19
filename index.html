@@ -242,7 +242,7 @@
                     <h2 class="card-title">Data Management</h2>
                 </div>
                 <p style="margin-bottom: var(--spacing-md); color: var(--muted-foreground); font-size: 0.875rem;">
-                    Backup your saved profiles to a file or restore from a previous backup.
+                    Backup your saved profiles and invoice history to a file or restore from a previous backup.
                 </p>
                 <div class="form-group" style="display: flex; gap: var(--spacing-md);">
                     <button type="button" id="exportDataBtn" class="btn btn-secondary">
@@ -255,8 +255,43 @@
                 </div>
             </section>
 
-            <!-- Generate Button -->
-            <section class="generate-section">
+            <!-- Invoice History -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="card-icon">📜</div>
+                    <h2 class="card-title">Invoice History</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table id="invoiceHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceHistoryBody">
+                            <!-- Invoices will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Floating Action Bar -->
+            <section class="generate-section" style="display: flex; gap: var(--spacing-md); align-items: center;">
+                <button type="button" id="newInvoiceBtn" class="btn btn-secondary"
+                    style="background: white; border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"
+                    title="New Invoice">
+                    ➕
+                </button>
+                <button type="button" id="saveInvoiceBtn" class="btn btn-secondary"
+                    style="background: white; border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"
+                    title="Save Invoice">
+                    💾
+                </button>
                 <button type="button" id="generatePdfBtn" class="btn-generate">
                     <span class="btn-text">Generate</span>
                 </button>

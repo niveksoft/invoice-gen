@@ -48,6 +48,11 @@
         importDataBtn: document.getElementById('importDataBtn'),
         importFile: document.getElementById('importFile'),
 
+        // Invoice History & Actions
+        invoiceHistoryBody: document.getElementById('invoiceHistoryBody'),
+        saveInvoiceBtn: document.getElementById('saveInvoiceBtn'),
+        newInvoiceBtn: document.getElementById('newInvoiceBtn'),
+
         // Totals
         subtotal: document.getElementById('subtotal'),
         shippingFee: document.getElementById('shippingFee'),
@@ -65,6 +70,11 @@
     // LocalStorage keys
     const CLIENTS_STORAGE_KEY = 'invoice-clients';
     const ISSUERS_STORAGE_KEY = 'invoice-issuers';
+    const INVOICES_STORAGE_KEY = 'invoice-list';
+    const LAST_INVOICE_NUM_KEY = 'last-invoice-number';
+
+    // State
+    let currentInvoiceId = null;
 
     // Initialize
     function init() {
@@ -94,6 +104,10 @@
         elements.importDataBtn.addEventListener('click', () => elements.importFile.click());
         elements.importFile.addEventListener('change', importData);
 
+        // Invoice Actions
+        elements.saveInvoiceBtn.addEventListener('click', saveInvoice);
+        elements.newInvoiceBtn.addEventListener('click', resetForm);
+
         // Delegate event listeners for dynamic items
         elements.itemsTableBody.addEventListener('input', handleItemInput);
         elements.itemsTableBody.addEventListener('click', handleItemRemove);
@@ -101,6 +115,8 @@
         // Initial load
         loadIssuerList();
         loadClientList();
+        loadInvoices();
+        resetForm(); // Sets up new invoice with next number
         updateTotals();
     }
 
@@ -461,6 +477,8 @@
         const data = {
             issuers: localStorage.getItem(ISSUERS_STORAGE_KEY),
             clients: localStorage.getItem(CLIENTS_STORAGE_KEY),
+            invoices: localStorage.getItem(INVOICES_STORAGE_KEY),
+            lastInvoiceNum: localStorage.getItem(LAST_INVOICE_NUM_KEY),
             timestamp: new Date().toISOString()
         };
 
@@ -500,9 +518,20 @@
                     importedCount++;
                 }
 
+                if (data.invoices) {
+                    localStorage.setItem(INVOICES_STORAGE_KEY, data.invoices);
+                    importedCount++;
+                }
+
+                if (data.lastInvoiceNum) {
+                    localStorage.setItem(LAST_INVOICE_NUM_KEY, data.lastInvoiceNum);
+                }
+
                 if (importedCount > 0) {
                     loadIssuerList();
                     loadClientList();
+                    loadInvoices();
+                    resetForm();
                     showMessage('✅ Data restored successfully!');
                 } else {
                     showMessage('⚠️ No valid data found in backup file', 'error');
@@ -517,6 +546,278 @@
             event.target.value = '';
         };
         reader.readAsText(file);
+    }
+
+    // --- Invoice History Management ---
+
+    function getInvoices() {
+        const invoices = localStorage.getItem(INVOICES_STORAGE_KEY);
+        return invoices ? JSON.parse(invoices) : [];
+    }
+
+    function saveInvoicesToStorage(invoices) {
+        localStorage.setItem(INVOICES_STORAGE_KEY, JSON.stringify(invoices));
+    }
+
+    function loadInvoices() {
+        const invoices = getInvoices();
+        // Sort by date desc
+        invoices.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        elements.invoiceHistoryBody.innerHTML = '';
+
+        if (invoices.length === 0) {
+            elements.invoiceHistoryBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--muted-foreground); padding: 20px;">No invoices saved yet</td></tr>';
+            return;
+        }
+
+        invoices.forEach(invoice => {
+            const row = document.createElement('tr');
+
+            // Format total
+            const total = formatCurrency(parseFloat(invoice.totals.grandTotal));
+
+            // Status badge style
+            let statusStyle = 'background: var(--zinc-100); color: var(--zinc-600);';
+            if (invoice.status === 'PAID') statusStyle = 'background: #dcfce7; color: #166534;';
+            if (invoice.status === 'OVERDUE') statusStyle = 'background: #fee2e2; color: #991b1b;';
+            if (invoice.status === 'DRAFT') statusStyle = 'background: #f3f4f6; color: #4b5563;';
+
+            row.innerHTML = `
+                <td style="font-weight: 500;">${invoice.invoiceNumber}</td>
+                <td>${invoice.issueDate}</td>
+                <td>${invoice.clientName || '-'}</td>
+                <td style="font-weight: 600;">${total}</td>
+                <td><span style="padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; ${statusStyle}">${invoice.status || 'Draft'}</span></td>
+                <td>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-secondary btn-sm edit-invoice" data-id="${invoice.id}" title="Edit">✏️</button>
+                        <button type="button" class="btn btn-secondary btn-sm delete-invoice" data-id="${invoice.id}" title="Delete">🗑️</button>
+                    </div>
+                </td>
+            `;
+            elements.invoiceHistoryBody.appendChild(row);
+        });
+
+        // Add listeners
+        document.querySelectorAll('.edit-invoice').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.closest('button').dataset.id;
+                loadInvoice(id);
+            });
+        });
+
+        document.querySelectorAll('.delete-invoice').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.closest('button').dataset.id;
+                deleteInvoice(id);
+            });
+        });
+    }
+
+    function getNextInvoiceNumber() {
+        const lastNum = localStorage.getItem(LAST_INVOICE_NUM_KEY);
+        if (!lastNum) return 'INV-001';
+
+        // Try to increment
+        const match = lastNum.match(/(\d+)$/);
+        if (match) {
+            const num = parseInt(match[1], 10) + 1;
+            const prefix = lastNum.slice(0, match.index);
+            return prefix + num.toString().padStart(match[0].length, '0');
+        }
+        return lastNum;
+    }
+
+    function resetForm() {
+        currentInvoiceId = null;
+
+        // Reset fields
+        elements.invoiceNumber.value = getNextInvoiceNumber();
+        elements.issueDate.valueAsDate = new Date();
+        elements.dueDate.valueAsDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // +14 days
+        elements.invoiceStatus.value = '';
+        elements.paymentMethod.value = '';
+
+        // Reset items
+        elements.itemsTableBody.innerHTML = '';
+        itemCounter = 0;
+        addLineItem(); // Add one empty row
+
+        // Reset totals
+        elements.shippingFee.value = 0;
+        elements.taxRate.value = 0;
+        elements.notes.value = '';
+
+        // Reset client/issuer selection
+        elements.clientSelect.value = '';
+        elements.issuerSelect.value = '';
+
+        // Clear inputs
+        elements.recipientName.value = '';
+        elements.recipientAddress.value = '';
+        elements.recipientEmail.value = '';
+        elements.recipientPhone.value = '';
+
+        updateTotals();
+        showMessage('✨ New invoice started');
+    }
+
+    function saveInvoice(silent = false) {
+        if (typeof silent !== 'boolean') silent = false;
+
+        if (!elements.invoiceNumber.value) {
+            if (!silent) showMessage('⚠️ Invoice number is required', 'error');
+            return false;
+        }
+
+        // Gather items
+        const items = [];
+        elements.itemsTableBody.querySelectorAll('tr').forEach(row => {
+            items.push({
+                description: row.querySelector('.item-description').value,
+                quantity: parseFloat(row.querySelector('.item-quantity').value) || 0,
+                price: parseFloat(row.querySelector('.item-price').value) || 0
+            });
+        });
+
+        // Gather totals
+        const totals = {
+            subtotal: elements.subtotal.textContent.replace(/[^0-9.-]+/g, ''),
+            shipping: elements.shippingFee.value,
+            taxRate: elements.taxRate.value,
+            taxAmount: elements.taxAmount.textContent.replace(/[^0-9.-]+/g, ''),
+            grandTotal: elements.grandTotal.textContent.replace(/[^0-9.-]+/g, '')
+        };
+
+        const invoice = {
+            id: currentInvoiceId || Date.now().toString(),
+            invoiceNumber: elements.invoiceNumber.value,
+            issueDate: elements.issueDate.value,
+            dueDate: elements.dueDate.value,
+            status: elements.invoiceStatus.value,
+            paymentMethod: elements.paymentMethod.value,
+            notes: elements.notes.value,
+
+            // Client info
+            clientId: elements.clientSelect.value,
+            clientName: elements.recipientName.value,
+            recipient: {
+                name: elements.recipientName.value,
+                address: elements.recipientAddress.value,
+                email: elements.recipientEmail.value,
+                phone: elements.recipientPhone.value
+            },
+
+            // Sender info
+            issuerId: elements.issuerSelect.value,
+            sender: {
+                name: elements.senderName.value,
+                address: elements.senderAddress.value,
+                email: elements.senderEmail.value,
+                phone: elements.senderPhone.value
+            },
+
+            items: items,
+            totals: totals,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        const invoices = getInvoices();
+
+        if (currentInvoiceId) {
+            // Update existing
+            const index = invoices.findIndex(inv => inv.id === currentInvoiceId);
+            if (index !== -1) {
+                invoices[index] = { ...invoices[index], ...invoice, createdAt: invoices[index].createdAt }; // Keep original createdAt
+            }
+        } else {
+            // Create new
+            invoices.push(invoice);
+            // Update last invoice number
+            localStorage.setItem(LAST_INVOICE_NUM_KEY, invoice.invoiceNumber);
+        }
+
+        saveInvoicesToStorage(invoices);
+        loadInvoices();
+
+        // Set current ID so subsequent saves update this one
+        currentInvoiceId = invoice.id;
+
+        if (!silent) showMessage('💾 Invoice saved successfully!');
+        return true;
+    }
+
+    function loadInvoice(id) {
+        const invoices = getInvoices();
+        const invoice = invoices.find(inv => inv.id === id);
+
+        if (!invoice) return;
+
+        currentInvoiceId = invoice.id;
+
+        // Populate fields
+        elements.invoiceNumber.value = invoice.invoiceNumber;
+        elements.issueDate.value = invoice.issueDate;
+        elements.dueDate.value = invoice.dueDate;
+        elements.invoiceStatus.value = invoice.status;
+        elements.paymentMethod.value = invoice.paymentMethod;
+        elements.notes.value = invoice.notes;
+
+        // Recipient
+        elements.recipientName.value = invoice.recipient.name;
+        elements.recipientAddress.value = invoice.recipient.address;
+        elements.recipientEmail.value = invoice.recipient.email;
+        elements.recipientPhone.value = invoice.recipient.phone;
+
+        // Sender
+        elements.senderName.value = invoice.sender.name;
+        elements.senderAddress.value = invoice.sender.address;
+        elements.senderEmail.value = invoice.sender.email;
+        elements.senderPhone.value = invoice.sender.phone;
+
+        // Totals
+        elements.shippingFee.value = invoice.totals.shipping;
+        elements.taxRate.value = invoice.totals.taxRate;
+
+        // Items
+        elements.itemsTableBody.innerHTML = '';
+        itemCounter = 0;
+
+        invoice.items.forEach(item => {
+            addLineItem();
+            const rows = elements.itemsTableBody.querySelectorAll('tr');
+            const lastRow = rows[rows.length - 1];
+
+            lastRow.querySelector('.item-description').value = item.description;
+            lastRow.querySelector('.item-quantity').value = item.quantity;
+            lastRow.querySelector('.item-price').value = item.price;
+
+            updateRowAmount(lastRow);
+        });
+
+        updateTotals();
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showMessage(`📂 Invoice ${invoice.invoiceNumber} loaded`);
+    }
+
+    function deleteInvoice(id) {
+        if (!confirm('Are you sure you want to delete this invoice?')) return;
+
+        const invoices = getInvoices();
+        const newInvoices = invoices.filter(inv => inv.id !== id);
+
+        saveInvoicesToStorage(newInvoices);
+        loadInvoices();
+
+        if (currentInvoiceId === id) {
+            resetForm();
+        }
+
+        showMessage('🗑️ Invoice deleted');
     }
 
     // Handle company logo upload
@@ -543,6 +844,12 @@
 
     // Generate PDF
     async function generatePDF() {
+        // Auto-save invoice before generating
+        if (!saveInvoice(true)) {
+            showMessage('⚠️ Please fix errors before generating', 'error');
+            return;
+        }
+
         try {
             // Validate required fields
             if (!validateForm()) {
