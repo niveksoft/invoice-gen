@@ -17,6 +17,7 @@
         senderPostalCode: document.getElementById('senderPostalCode'),
         senderEmail: document.getElementById('senderEmail'),
         senderPhone: document.getElementById('senderPhone'),
+        senderPhoneCountry: document.getElementById('senderPhoneCountry'),
 
         // Issuer Profile Management
         issuerSelect: document.getElementById('issuerSelect'),
@@ -39,6 +40,7 @@
         recipientPostalCode: document.getElementById('recipientPostalCode'),
         recipientEmail: document.getElementById('recipientEmail'),
         recipientPhone: document.getElementById('recipientPhone'),
+        recipientPhoneCountry: document.getElementById('recipientPhoneCountry'),
 
         // Client Management
         clientSelect: document.getElementById('clientSelect'),
@@ -144,6 +146,63 @@
                 switchNestedTab(nestedTabId);
             });
         });
+
+        // Phone number formatting
+        elements.senderPhone.addEventListener('input', (e) => formatPhoneNumber(e.target));
+        elements.recipientPhone.addEventListener('input', (e) => formatPhoneNumber(e.target));
+    }
+
+    // Format phone number as user types
+    function formatPhoneNumber(input) {
+        // Get only digits from input
+        let digits = input.value.replace(/\D/g, '');
+
+        // Limit to 10 digits for North American format
+        if (digits.length > 10) {
+            digits = digits.substring(0, 10);
+        }
+
+        // Format based on length
+        let formatted = '';
+        if (digits.length === 0) {
+            formatted = '';
+        } else if (digits.length <= 3) {
+            formatted = `(${digits}`;
+        } else if (digits.length <= 6) {
+            formatted = `(${digits.substring(0, 3)}) ${digits.substring(3)}`;
+        } else {
+            formatted = `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6)}`;
+        }
+
+        input.value = formatted;
+    }
+
+    // Get full phone number with country code
+    function getFullPhoneNumber(phoneInput, countrySelect) {
+        const countryCode = countrySelect.value;
+        const number = phoneInput.value.replace(/\D/g, '');
+        if (!number) return '';
+        return `${countryCode} ${phoneInput.value}`;
+    }
+
+    // Parse phone number (extract country code and number)
+    function parsePhoneNumber(fullNumber) {
+        if (!fullNumber) return { countryCode: '+1', number: '' };
+
+        // Match country code pattern
+        const match = fullNumber.match(/^(\+\d+)\s*(.*)$/);
+        if (match) {
+            return {
+                countryCode: match[1],
+                number: match[2].replace(/\D/g, '') // Extract digits only
+            };
+        }
+
+        // If no country code, assume it's just the number
+        return {
+            countryCode: '+1',
+            number: fullNumber.replace(/\D/g, '')
+        };
     }
 
     function switchTab(tabId) {
@@ -326,7 +385,7 @@
         const country = elements.senderCountry.value.trim();
         const postalCode = elements.senderPostalCode.value.trim();
         const email = elements.senderEmail.value.trim();
-        const phone = elements.senderPhone.value.trim();
+        const phone = getFullPhoneNumber(elements.senderPhone, elements.senderPhoneCountry);
 
         if (!firstName || !lastName) {
             showMessage('❌ Please enter your first and last name before saving', 'error');
@@ -405,7 +464,15 @@
             elements.senderCountry.value = issuer.country || '';
             elements.senderPostalCode.value = issuer.postalCode || '';
             elements.senderEmail.value = issuer.email || '';
-            elements.senderPhone.value = issuer.phone || '';
+
+            // Parse phone number to extract country code and number
+            const phoneData = parsePhoneNumber(issuer.phone || '');
+            elements.senderPhoneCountry.value = phoneData.countryCode;
+            elements.senderPhone.value = phoneData.number;
+            // Format the phone number
+            if (phoneData.number) {
+                formatPhoneNumber(elements.senderPhone);
+            }
         }
     }
 

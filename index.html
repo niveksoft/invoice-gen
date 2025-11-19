@@ -26,7 +26,7 @@
             <!-- Editor Tab -->
             <div id="editor-tab" class="tab-content active">
                 <!-- Nested Tabs for Editor Sections -->
-                <div class="nested-tabs">
+                <div class="nested-tabs" nooverflow>
                     <button class="nested-tab-btn active" data-nested-tab="your-info">👤 Your Information</button>
                     <button class="nested-tab-btn" data-nested-tab="issued-to">🏢 Issued To</button>
                     <button class="nested-tab-btn" data-nested-tab="invoice-details">📋 Invoice Details</button>
@@ -94,7 +94,14 @@
                             </div>
                             <div class="form-group">
                                 <label for="senderPhone">Phone</label>
-                                <input type="tel" id="senderPhone" placeholder="Phone number" required>
+                                <div class="phone-input-group">
+                                    <select id="senderPhoneCountry" class="phone-country-select">
+                                        <option value="+1" selected>🇨🇦 +1</option>
+                                        <option value="+1">🇺🇸 +1</option>
+                                    </select>
+                                    <input type="text" id="senderPhone" placeholder="(XXX) XXX-XXXX" required
+                                        class="phone-number-input">
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -199,7 +206,14 @@
                             </div>
                             <div class="form-group">
                                 <label for="recipientPhone">Phone</label>
-                                <input type="tel" id="recipientPhone" placeholder="Phone number" required>
+                                <div class="phone-input-group">
+                                    <select id="recipientPhoneCountry" class="phone-country-select">
+                                        <option value="+1" selected>🇨🇦 +1</option>
+                                        <option value="+1">🇺🇸 +1</option>
+                                    </select>
+                                    <input type="text" id="recipientPhone" placeholder="(XXX) XXX-XXXX" required
+                                        class="phone-number-input">
+                                </div>
                             </div>
                         </div>
                     </section>
