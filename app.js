@@ -807,6 +807,7 @@
                 <td>
                     <div style="display: flex; gap: 8px;">
                         <button type="button" class="btn btn-secondary btn-sm edit-invoice" data-id="${invoice.id}" title="Edit">✏️</button>
+                        <button type="button" class="btn btn-secondary btn-sm clone-invoice" data-id="${invoice.id}" title="Clone">📋</button>
                         <button type="button" class="btn btn-secondary btn-sm delete-invoice" data-id="${invoice.id}" title="Delete">🗑️</button>
                     </div>
                 </td>
@@ -819,6 +820,13 @@
             btn.addEventListener('click', (e) => {
                 const id = e.target.closest('button').dataset.id;
                 loadInvoice(id);
+            });
+        });
+
+        document.querySelectorAll('.clone-invoice').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.closest('button').dataset.id;
+                cloneInvoice(id);
             });
         });
 
@@ -1061,6 +1069,83 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
         switchTab('editor');
         showMessage(`📂 Invoice ${invoice.invoiceNumber} loaded`);
+    }
+
+    function cloneInvoice(id) {
+        const invoices = getInvoices();
+        const invoice = invoices.find(inv => inv.id === id);
+
+        if (!invoice) return;
+
+        // Load the invoice data (similar to loadInvoice, but don't set currentInvoiceId)
+        currentInvoiceId = null; // Clear this so it saves as a new invoice
+
+        // Populate fields
+        elements.invoiceNumber.value = getNextInvoiceNumber(); // Generate new invoice number
+        elements.issueDate.value = invoice.issueDate;
+        elements.dueDate.value = invoice.dueDate;
+        elements.invoiceStatus.value = invoice.status;
+        elements.paymentMethod.value = invoice.paymentMethod;
+        elements.notes.value = invoice.notes;
+
+        // Recipient - support both new and old formats
+        elements.recipientFirstName.value = invoice.recipient.firstName || '';
+        elements.recipientLastName.value = invoice.recipient.lastName || '';
+        elements.recipientAddressLine1.value = invoice.recipient.addressLine1 || invoice.recipient.address || '';
+        elements.recipientAddressLine2.value = invoice.recipient.addressLine2 || '';
+        elements.recipientCity.value = invoice.recipient.city || '';
+        elements.recipientProvince.value = invoice.recipient.province || '';
+        elements.recipientCountry.value = invoice.recipient.country || '';
+        elements.recipientPostalCode.value = invoice.recipient.postalCode || '';
+        elements.recipientEmail.value = invoice.recipient.email;
+
+        const recipientPhoneData = parsePhoneNumber(invoice.recipient.phone || '');
+        elements.recipientPhoneCountry.value = recipientPhoneData.countryCode;
+        elements.recipientPhone.value = recipientPhoneData.number;
+        if (recipientPhoneData.number) formatPhoneNumber(elements.recipientPhone);
+
+        // Sender - support both new and old formats
+        elements.senderFirstName.value = invoice.sender.firstName || '';
+        elements.senderLastName.value = invoice.sender.lastName || '';
+        elements.senderAddressLine1.value = invoice.sender.addressLine1 || invoice.sender.address || '';
+        elements.senderAddressLine2.value = invoice.sender.addressLine2 || '';
+        elements.senderCity.value = invoice.sender.city || '';
+        elements.senderProvince.value = invoice.sender.province || '';
+        elements.senderCountry.value = invoice.sender.country || '';
+        elements.senderPostalCode.value = invoice.sender.postalCode || '';
+        elements.senderEmail.value = invoice.sender.email;
+
+        const senderPhoneData = parsePhoneNumber(invoice.sender.phone || '');
+        elements.senderPhoneCountry.value = senderPhoneData.countryCode;
+        elements.senderPhone.value = senderPhoneData.number;
+        if (senderPhoneData.number) formatPhoneNumber(elements.senderPhone);
+
+        // Totals
+        elements.shippingFee.value = invoice.totals.shipping;
+        elements.taxRate.value = invoice.totals.taxRate;
+
+        // Items
+        elements.itemsTableBody.innerHTML = '';
+        itemCounter = 0;
+
+        invoice.items.forEach(item => {
+            addLineItem();
+            const rows = elements.itemsTableBody.querySelectorAll('tr');
+            const lastRow = rows[rows.length - 1];
+
+            lastRow.querySelector('.item-description').value = item.description;
+            lastRow.querySelector('.item-quantity').value = item.quantity;
+            lastRow.querySelector('.item-price').value = item.price;
+
+            updateRowAmount(lastRow);
+        });
+
+        updateTotals();
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        switchTab('editor');
+        showMessage(`📋 Invoice cloned as ${elements.invoiceNumber.value}`);
     }
 
     function deleteInvoice(id) {
