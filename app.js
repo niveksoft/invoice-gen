@@ -808,6 +808,7 @@
                     <div style="display: flex; gap: 8px;">
                         <button type="button" class="btn btn-secondary btn-sm edit-invoice" data-id="${invoice.id}" title="Edit">✏️</button>
                         <button type="button" class="btn btn-secondary btn-sm clone-invoice" data-id="${invoice.id}" title="Clone">📋</button>
+                        <button type="button" class="btn btn-secondary btn-sm generate-pdf-invoice" data-id="${invoice.id}" title="Generate PDF">📄</button>
                         <button type="button" class="btn btn-secondary btn-sm delete-invoice" data-id="${invoice.id}" title="Delete">🗑️</button>
                     </div>
                 </td>
@@ -827,6 +828,13 @@
             btn.addEventListener('click', (e) => {
                 const id = e.target.closest('button').dataset.id;
                 cloneInvoice(id);
+            });
+        });
+
+        document.querySelectorAll('.generate-pdf-invoice').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.closest('button').dataset.id;
+                generatePDFFromHistory(id);
             });
         });
 
@@ -1164,6 +1172,20 @@
         showMessage('🗑️ Invoice deleted');
     }
 
+    // Generate PDF from history using saved invoice data
+    async function generatePDFFromHistory(id) {
+        const invoices = getInvoices();
+        const invoice = invoices.find(inv => inv.id === id);
+
+        if (!invoice) {
+            showMessage('❌ Invoice not found', 'error');
+            return;
+        }
+
+        // Call generatePDF with the invoice data
+        await generatePDF(invoice);
+    }
+
     // Handle company logo upload
     function handleLogoUpload(e) {
         const file = e.target.files[0];
@@ -1187,18 +1209,24 @@
     }
 
     // Generate PDF
-    async function generatePDF() {
-        // Auto-save invoice before generating
-        if (!saveInvoice(true)) {
-            showMessage('⚠️ Please fix errors before generating', 'error');
-            return;
-        }
+    async function generatePDF(invoiceData = null) {
+        // If no invoice data provided, we're generating from the current form
+        const fromHistory = invoiceData !== null;
 
-        try {
+        if (!fromHistory) {
+            // Auto-save invoice before generating
+            if (!saveInvoice(true)) {
+                showMessage('⚠️ Please fix errors before generating', 'error');
+                return;
+            }
+
             // Validate required fields
             if (!validateForm()) {
                 return;
             }
+        }
+
+        try {
 
             // Show loading state
             const originalText = elements.generatePdfBtn.innerHTML;
@@ -1243,6 +1271,65 @@
                 return lines.length * lineHeight;
             }
 
+            // Helper function to get data from invoice object or form elements
+            function getData(field) {
+                if (invoiceData) {
+                    // Getting from saved invoice data
+                    switch (field) {
+                        case 'senderFirstName': return invoiceData.sender.firstName;
+                        case 'senderLastName': return invoiceData.sender.lastName;
+                        case 'senderAddressLine1': return invoiceData.sender.addressLine1;
+                        case 'senderAddressLine2': return invoiceData.sender.addressLine2 || '';
+                        case 'senderCity': return invoiceData.sender.city;
+                        case 'senderProvince': return invoiceData.sender.province;
+                        case 'senderCountry': return invoiceData.sender.country;
+                        case 'senderPostalCode': return invoiceData.sender.postalCode;
+                        case 'senderEmail': return invoiceData.sender.email;
+                        case 'senderPhone': return invoiceData.sender.phone;
+                        case 'recipientFirstName': return invoiceData.recipient.firstName;
+                        case 'recipientLastName': return invoiceData.recipient.lastName;
+                        case 'recipientAddressLine1': return invoiceData.recipient.addressLine1;
+                        case 'recipientAddressLine2': return invoiceData.recipient.addressLine2 || '';
+                        case 'recipientCity': return invoiceData.recipient.city;
+                        case 'recipientProvince': return invoiceData.recipient.province;
+                        case 'recipientCountry': return invoiceData.recipient.country;
+                        case 'recipientPostalCode': return invoiceData.recipient.postalCode;
+                        case 'recipientEmail': return invoiceData.recipient.email;
+                        case 'recipientPhone': return invoiceData.recipient.phone;
+                        case 'invoiceNumber': return invoiceData.invoiceNumber;
+                        case 'paymentMethod': return invoiceData.paymentMethod;
+                        case 'issueDate': return invoiceData.issueDate;
+                        case 'dueDate': return invoiceData.dueDate;
+                        case 'invoiceStatus': return invoiceData.status;
+                        case 'notes': return invoiceData.notes || '';
+                        case 'items': return invoiceData.items;
+                        case 'subtotal': return formatCurrency(parseFloat(invoiceData.totals.subtotal));
+                        case 'shipping': return parseFloat(invoiceData.totals.shipping) || 0;
+                        case 'taxRate': return parseFloat(invoiceData.totals.taxRate) || 0;
+                        case 'taxAmount': return formatCurrency(parseFloat(invoiceData.totals.taxAmount));
+                        case 'grandTotal': return formatCurrency(parseFloat(invoiceData.totals.grandTotal));
+                        default: return '';
+                    }
+                } else {
+                    // Getting from form elements
+                    switch (field) {
+                        case 'senderPhone': return getFullPhoneNumber(elements.senderPhone, elements.senderPhoneCountry);
+                        case 'recipientPhone': return getFullPhoneNumber(elements.recipientPhone, elements.recipientPhoneCountry);
+                        case 'items': return Array.from(elements.itemsTableBody.querySelectorAll('tr')).map(row => ({
+                            description: row.querySelector('.item-description').value,
+                            quantity: parseFloat(row.querySelector('.item-quantity').value) || 0,
+                            price: parseFloat(row.querySelector('.item-price').value) || 0
+                        }));
+                        case 'subtotal': return elements.subtotal.textContent;
+                        case 'shipping': return parseFloat(elements.shippingFee.value) || 0;
+                        case 'taxRate': return parseFloat(elements.taxRate.value) || 0;
+                        case 'taxAmount': return elements.taxAmount.textContent;
+                        case 'grandTotal': return elements.grandTotal.textContent;
+                        default: return elements[field] ? elements[field].value : '';
+                    }
+                }
+            }
+
             // Original style - simple and clean
             doc.setTextColor(0, 0, 0);
 
@@ -1255,7 +1342,7 @@
             // Sender Information (Left side)
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            const senderFullName = `${elements.senderFirstName.value} ${elements.senderLastName.value}`.trim();
+            const senderFullName = `${getData('senderFirstName')} ${getData('senderLastName')}`.trim();
             doc.text(senderFullName, margin, yPos);
             yPos += 6;
 
@@ -1269,36 +1356,36 @@
             doc.setFont('helvetica', 'bold');
             doc.text('Invoice #:', rightX - 60, rightY);
             doc.setFont('helvetica', 'normal');
-            doc.text(elements.invoiceNumber.value, rightX, rightY, { align: 'right' });
+            doc.text(getData('invoiceNumber'), rightX, rightY, { align: 'right' });
             rightY += 5;
 
             doc.setFont('helvetica', 'bold');
             doc.text('Payment:', rightX - 60, rightY);
             doc.setFont('helvetica', 'normal');
-            doc.text(elements.paymentMethod.value, rightX, rightY, { align: 'right' });
+            doc.text(getData('paymentMethod'), rightX, rightY, { align: 'right' });
             rightY += 5;
 
             doc.setFont('helvetica', 'bold');
             doc.text('Issue Date:', rightX - 60, rightY);
             doc.setFont('helvetica', 'normal');
-            doc.text(formatDate(elements.issueDate.value), rightX, rightY, { align: 'right' });
+            doc.text(formatDate(getData('issueDate')), rightX, rightY, { align: 'right' });
             rightY += 5;
 
             doc.setFont('helvetica', 'bold');
             doc.text('Due Date:', rightX - 60, rightY);
             doc.setFont('helvetica', 'normal');
-            doc.text(formatDate(elements.dueDate.value), rightX, rightY, { align: 'right' });
+            doc.text(formatDate(getData('dueDate')), rightX, rightY, { align: 'right' });
             rightY += 5;
 
             // Continue sender info on left - format address properly
-            yPos += addText(elements.senderAddressLine1.value, margin, yPos, { maxWidth: 100 });
-            if (elements.senderAddressLine2.value.trim()) {
-                yPos += addText(elements.senderAddressLine2.value, margin, yPos, { maxWidth: 100 });
+            yPos += addText(getData('senderAddressLine1'), margin, yPos, { maxWidth: 100 });
+            if (getData('senderAddressLine2').trim()) {
+                yPos += addText(getData('senderAddressLine2'), margin, yPos, { maxWidth: 100 });
             }
-            const senderLocationLine = `${elements.senderCity.value}, ${elements.senderProvince.value}, ${elements.senderCountry.value} ${elements.senderPostalCode.value}`.trim();
+            const senderLocationLine = `${getData('senderCity')}, ${getData('senderProvince')}, ${getData('senderCountry')} ${getData('senderPostalCode')}`.trim();
             yPos += addText(senderLocationLine, margin, yPos, { maxWidth: 100 });
-            yPos += addText(elements.senderEmail.value, margin, yPos, { maxWidth: 100 });
-            yPos += addText(getFullPhoneNumber(elements.senderPhone, elements.senderPhoneCountry), margin, yPos, { maxWidth: 100 });
+            yPos += addText(getData('senderEmail'), margin, yPos, { maxWidth: 100 });
+            yPos += addText(getData('senderPhone'), margin, yPos, { maxWidth: 100 });
             yPos += 10;
 
             // BILL TO section (changed from "Issued To")
@@ -1309,20 +1396,20 @@
 
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            const recipientFullName = `${elements.recipientFirstName.value} ${elements.recipientLastName.value}`.trim();
+            const recipientFullName = `${getData('recipientFirstName')} ${getData('recipientLastName')}`.trim();
             doc.text(recipientFullName, margin, yPos);
             yPos += 5;
 
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            yPos += addText(elements.recipientAddressLine1.value, margin, yPos, { maxWidth: 100 });
-            if (elements.recipientAddressLine2.value.trim()) {
-                yPos += addText(elements.recipientAddressLine2.value, margin, yPos, { maxWidth: 100 });
+            yPos += addText(getData('recipientAddressLine1'), margin, yPos, { maxWidth: 100 });
+            if (getData('recipientAddressLine2').trim()) {
+                yPos += addText(getData('recipientAddressLine2'), margin, yPos, { maxWidth: 100 });
             }
-            const recipientLocationLine = `${elements.recipientCity.value}, ${elements.recipientProvince.value}, ${elements.recipientCountry.value} ${elements.recipientPostalCode.value}`.trim();
+            const recipientLocationLine = `${getData('recipientCity')}, ${getData('recipientProvince')}, ${getData('recipientCountry')} ${getData('recipientPostalCode')}`.trim();
             yPos += addText(recipientLocationLine, margin, yPos, { maxWidth: 100 });
-            yPos += addText(elements.recipientEmail.value, margin, yPos, { maxWidth: 100 });
-            yPos += addText(getFullPhoneNumber(elements.recipientPhone, elements.recipientPhoneCountry), margin, yPos, { maxWidth: 100 });
+            yPos += addText(getData('recipientEmail'), margin, yPos, { maxWidth: 100 });
+            yPos += addText(getData('recipientPhone'), margin, yPos, { maxWidth: 100 });
             yPos += 10;
 
             // Items Table in card style
@@ -1360,14 +1447,14 @@
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(24, 24, 27); // zinc-900
 
-            const rows = elements.itemsTableBody.querySelectorAll('tr');
+            const items = getData('items');
 
-            rows.forEach((row, index) => {
-                const description = row.querySelector('.item-description').value;
-                const quantity = row.querySelector('.item-quantity').value;
-                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            items.forEach((item, index) => {
+                const description = item.description;
+                const quantity = item.quantity;
+                const price = item.price;
 
-                let amount = (parseFloat(quantity) || 0) * price;
+                let amount = quantity * price;
 
                 // Calculate height needed for this row
                 const descLines = doc.splitTextToSize(description, colWidths.description - 8);
@@ -1437,11 +1524,11 @@
             // Subtotal
             doc.text('Subtotal:', totalsLabelX, totalsY);
             doc.setTextColor(24, 24, 27); // zinc-900
-            doc.text(elements.subtotal.textContent, totalsValueX, totalsY, { align: 'right' });
+            doc.text(getData('subtotal'), totalsValueX, totalsY, { align: 'right' });
             totalsY += 5;
 
             // Shipping
-            const shipping = parseFloat(elements.shippingFee.value) || 0;
+            const shipping = getData('shipping');
             if (shipping > 0) {
                 doc.setTextColor(113, 113, 122); // zinc-500
                 doc.text('Shipping:', totalsLabelX, totalsY);
@@ -1451,11 +1538,11 @@
             }
 
             // Tax
-            const taxRate = parseFloat(elements.taxRate.value) || 0;
+            const taxRate = getData('taxRate');
             doc.setTextColor(113, 113, 122); // zinc-500
             doc.text(`Tax (${taxRate}%):`, totalsLabelX, totalsY);
             doc.setTextColor(24, 24, 27); // zinc-900
-            doc.text(elements.taxAmount.textContent, totalsValueX, totalsY, { align: 'right' });
+            doc.text(getData('taxAmount'), totalsValueX, totalsY, { align: 'right' });
             totalsY += 7;
 
             // Separator line
@@ -1469,12 +1556,13 @@
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(24, 24, 27);
             doc.text('Total:', totalsLabelX, totalsY);
-            doc.text(elements.grandTotal.textContent, totalsValueX, totalsY, { align: 'right' });
+            doc.text(getData('grandTotal'), totalsValueX, totalsY, { align: 'right' });
 
             yPos = totalsY + 20;
 
             // Notes section
-            if (elements.notes.value) {
+            const notes = getData('notes');
+            if (notes && notes.trim()) {
                 yPos += 10;
 
                 // Check if we need a new page
@@ -1493,7 +1581,7 @@
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(60, 60, 60);
 
-                const noteLines = doc.splitTextToSize(elements.notes.value, contentWidth);
+                const noteLines = doc.splitTextToSize(notes, contentWidth);
                 doc.text(noteLines, margin, yPos);
                 yPos += (noteLines.length * 5) + 10;
             }
@@ -1505,7 +1593,7 @@
             doc.text('Thank you for your business!', pageWidth / 2, pageHeight - 20, { align: 'center' });
 
             // Watermark (Bottom right corner - drawn last)
-            const status = elements.invoiceStatus.value;
+            const status = getData('invoiceStatus');
             if (status) {
                 doc.saveGraphicsState();
                 doc.setTextColor(245, 245, 245); // Extremely light gray
@@ -1525,7 +1613,7 @@
             }
 
             // Save the PDF with File System Access API (if supported)
-            const filename = `Invoice-${elements.invoiceNumber.value}.pdf`;
+            const filename = `Invoice-${getData('invoiceNumber')}.pdf`;
             const pdfBlob = doc.output('blob');
 
             // Try to use File System Access API for custom save location
