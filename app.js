@@ -1867,7 +1867,15 @@
             const status = getData('invoiceStatus');
             if (status) {
                 doc.saveGraphicsState();
-                doc.setTextColor(245, 245, 245); // Extremely light gray
+                // Set color based on status
+                const statusUpper = status.toUpperCase();
+                if (statusUpper === 'PAID') {
+                    doc.setTextColor(138, 250, 155); // Green (visible)
+                } else if (statusUpper === 'OVERDUE') {
+                    doc.setTextColor(252, 134, 134); // Red
+                } else {
+                    doc.setTextColor(175, 238, 252); // Blue (Draft/Other)
+                }
                 doc.setFontSize(60);
                 doc.setFont('helvetica', 'bold');
 
