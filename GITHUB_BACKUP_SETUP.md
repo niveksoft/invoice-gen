@@ -65,6 +65,14 @@ Automatically backup your invoice data to a **separate private GitHub repository
 2. Click **"🚀 Backup to GitHub Now"**
 3. Done! Check your GitHub repo to confirm
 
+### Load Latest Backup
+
+1. Open invoice generator → **Settings** tab  
+2. Click **"⬇️ Load Latest Backup"**
+3. Your data is instantly restored from the most recent backup!
+
+**Note:** This automatically finds and loads the newest backup file from your GitHub repository.
+
 ### Restore from Backup
 
 1. Go to your GitHub backup repository

@@ -69,6 +69,7 @@
         githubBranch: document.getElementById('githubBranch'),
         saveGithubConfig: document.getElementById('saveGithubConfig'),
         backupToGithub: document.getElementById('backupToGithub'),
+        loadLatestBackup: document.getElementById('loadLatestBackup'),
 
         // Invoice History & Actions
         invoiceHistoryBody: document.getElementById('invoiceHistoryBody'),
@@ -130,6 +131,7 @@
         // GitHub Backup
         elements.saveGithubConfig.addEventListener('click', saveGithubConfig);
         elements.backupToGithub.addEventListener('click', backupToGithub);
+        elements.loadLatestBackup.addEventListener('click', loadLatestBackup);
 
         // Invoice Actions
         elements.saveInvoiceBtn.addEventListener('click', saveInvoice);
@@ -902,6 +904,133 @@
             showMessage('❌ Backup failed: ' + err.message, 'error');
             elements.backupToGithub.disabled = false;
             elements.backupToGithub.textContent = '🚀 Backup to GitHub Now';
+        }
+    }
+
+    // Load latest backup from GitHub
+    async function loadLatestBackup() {
+        const configStr = localStorage.getItem(GITHUB_CONFIG_KEY);
+        if (!configStr) {
+            showMessage('⚠️ Please configure GitHub settings first', 'error');
+            return;
+        }
+
+        let config;
+        try {
+            config = JSON.parse(configStr);
+        } catch (err) {
+            showMessage('❌ Invalid GitHub configuration', 'error');
+            return;
+        }
+
+        if (!config.token || !config.owner || !config.repo) {
+            showMessage('⚠️ Please configure GitHub settings first', 'error');
+            return;
+        }
+
+        try {
+            // Show loading state
+            const originalText = elements.loadLatestBackup.textContent;
+            elements.loadLatestBackup.disabled = true;
+            elements.loadLatestBackup.textContent = '⏳ Loading...';
+
+            // List contents of backups directory
+            const listUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/backups`;
+
+            const listResponse = await fetch(listUrl, {
+                headers: {
+                    'Authorization': `token ${config.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+
+            if (!listResponse.ok) {
+                const error = await listResponse.json();
+                console.error('GitHub API error:', error);
+
+                if (listResponse.status === 401) {
+                    showMessage('❌ Invalid GitHub token', 'error');
+                } else if (listResponse.status === 404) {
+                    showMessage('❌ Repository or backups folder not found', 'error');
+                } else {
+                    showMessage(`❌ GitHub API error: ${error.message || 'Unknown error'}`, 'error');
+                }
+
+                elements.loadLatestBackup.disabled = false;
+                elements.loadLatestBackup.textContent = originalText;
+                return;
+            }
+
+            const files = await listResponse.json();
+
+            // Filter JSON files and sort by name (filename contains timestamp)
+            const backupFiles = files
+                .filter(file => file.name.endsWith('.json') && file.type === 'file')
+                .sort((a, b) => b.name.localeCompare(a.name)); // Descending order
+
+            if (backupFiles.length === 0) {
+                showMessage('⚠️ No backup files found in repository', 'error');
+                elements.loadLatestBackup.disabled = false;
+                elements.loadLatestBackup.textContent = originalText;
+                return;
+            }
+
+            // Get the latest file
+            const latestFile = backupFiles[0];
+
+            // Fetch the file content
+            const fileResponse = await fetch(latestFile.download_url);
+
+            if (!fileResponse.ok) {
+                showMessage('❌ Failed to download backup file', 'error');
+                elements.loadLatestBackup.disabled = false;
+                elements.loadLatestBackup.textContent = originalText;
+                return;
+            }
+
+            const data = await fileResponse.json();
+
+            // Import the data
+            let importedCount = 0;
+
+            if (data.issuers) {
+                localStorage.setItem(ISSUERS_STORAGE_KEY, data.issuers);
+                importedCount++;
+            }
+
+            if (data.clients) {
+                localStorage.setItem(CLIENTS_STORAGE_KEY, data.clients);
+                importedCount++;
+            }
+
+            if (data.invoices) {
+                localStorage.setItem(INVOICES_STORAGE_KEY, data.invoices);
+                importedCount++;
+            }
+
+            if (data.lastInvoiceNum) {
+                localStorage.setItem(LAST_INVOICE_NUM_KEY, data.lastInvoiceNum);
+            }
+
+            if (importedCount > 0) {
+                loadIssuerList();
+                loadClientList();
+                loadInvoices();
+                resetForm();
+                showMessage(`✅ Loaded latest backup: ${latestFile.name}`);
+            } else {
+                showMessage('⚠️ No valid data found in backup file', 'error');
+            }
+
+            // Restore button state
+            elements.loadLatestBackup.disabled = false;
+            elements.loadLatestBackup.textContent = originalText;
+
+        } catch (err) {
+            console.error('Load backup error:', err);
+            showMessage('❌ Failed to load backup: ' + err.message, 'error');
+            elements.loadLatestBackup.disabled = false;
+            elements.loadLatestBackup.textContent = '⬇️ Load Latest Backup';
         }
     }
 
