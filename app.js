@@ -581,7 +581,7 @@
         const country = elements.recipientCountry.value.trim();
         const postalCode = elements.recipientPostalCode.value.trim();
         const email = elements.recipientEmail.value.trim();
-        const phone = elements.recipientPhone.value.trim();
+        const phone = getFullPhoneNumber(elements.recipientPhone, elements.recipientPhoneCountry);
 
         if (!firstName || !lastName) {
             showMessage('❌ Please enter client first and last name before saving', 'error');
