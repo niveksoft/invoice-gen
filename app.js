@@ -13,6 +13,7 @@
         senderAddressLine1: document.getElementById('senderAddressLine1'),
         senderAddressLine2: document.getElementById('senderAddressLine2'),
         senderCity: document.getElementById('senderCity'),
+        senderProvince: document.getElementById('senderProvince'),
         senderCountry: document.getElementById('senderCountry'),
         senderPostalCode: document.getElementById('senderPostalCode'),
         senderEmail: document.getElementById('senderEmail'),
@@ -36,6 +37,7 @@
         recipientAddressLine1: document.getElementById('recipientAddressLine1'),
         recipientAddressLine2: document.getElementById('recipientAddressLine2'),
         recipientCity: document.getElementById('recipientCity'),
+        recipientProvince: document.getElementById('recipientProvince'),
         recipientCountry: document.getElementById('recipientCountry'),
         recipientPostalCode: document.getElementById('recipientPostalCode'),
         recipientEmail: document.getElementById('recipientEmail'),
@@ -382,6 +384,7 @@
         const addressLine1 = elements.senderAddressLine1.value.trim();
         const addressLine2 = elements.senderAddressLine2.value.trim();
         const city = elements.senderCity.value.trim();
+        const province = elements.senderProvince.value.trim();
         const country = elements.senderCountry.value.trim();
         const postalCode = elements.senderPostalCode.value.trim();
         const email = elements.senderEmail.value.trim();
@@ -401,6 +404,7 @@
             addressLine1,
             addressLine2,
             city,
+            province,
             country,
             postalCode,
             email,
@@ -444,6 +448,7 @@
             elements.senderAddressLine1.value = '';
             elements.senderAddressLine2.value = '';
             elements.senderCity.value = '';
+            elements.senderProvince.value = '';
             elements.senderCountry.value = '';
             elements.senderPostalCode.value = '';
             elements.senderEmail.value = '';
@@ -461,6 +466,7 @@
             elements.senderAddressLine1.value = issuer.addressLine1 || issuer.address || '';
             elements.senderAddressLine2.value = issuer.addressLine2 || '';
             elements.senderCity.value = issuer.city || '';
+            elements.senderProvince.value = issuer.province || '';
             elements.senderCountry.value = issuer.country || '';
             elements.senderPostalCode.value = issuer.postalCode || '';
             elements.senderEmail.value = issuer.email || '';
@@ -502,6 +508,7 @@
             elements.senderAddressLine1.value = '';
             elements.senderAddressLine2.value = '';
             elements.senderCity.value = '';
+            elements.senderProvince.value = '';
             elements.senderCountry.value = '';
             elements.senderPostalCode.value = '';
             elements.senderEmail.value = '';
@@ -552,6 +559,7 @@
         const addressLine1 = elements.recipientAddressLine1.value.trim();
         const addressLine2 = elements.recipientAddressLine2.value.trim();
         const city = elements.recipientCity.value.trim();
+        const province = elements.recipientProvince.value.trim();
         const country = elements.recipientCountry.value.trim();
         const postalCode = elements.recipientPostalCode.value.trim();
         const email = elements.recipientEmail.value.trim();
@@ -571,6 +579,7 @@
             addressLine1,
             addressLine2,
             city,
+            province,
             country,
             postalCode,
             email,
@@ -614,6 +623,7 @@
             elements.recipientAddressLine1.value = '';
             elements.recipientAddressLine2.value = '';
             elements.recipientCity.value = '';
+            elements.recipientProvince.value = '';
             elements.recipientCountry.value = '';
             elements.recipientPostalCode.value = '';
             elements.recipientEmail.value = '';
@@ -631,6 +641,7 @@
             elements.recipientAddressLine1.value = client.addressLine1 || client.address || '';
             elements.recipientAddressLine2.value = client.addressLine2 || '';
             elements.recipientCity.value = client.city || '';
+            elements.recipientProvince.value = client.province || '';
             elements.recipientCountry.value = client.country || '';
             elements.recipientPostalCode.value = client.postalCode || '';
             elements.recipientEmail.value = client.email || '';
@@ -664,6 +675,7 @@
             elements.recipientAddressLine1.value = '';
             elements.recipientAddressLine2.value = '';
             elements.recipientCity.value = '';
+            elements.recipientProvince.value = '';
             elements.recipientCountry.value = '';
             elements.recipientPostalCode.value = '';
             elements.recipientEmail.value = '';
@@ -862,6 +874,7 @@
         elements.recipientAddressLine1.value = '';
         elements.recipientAddressLine2.value = '';
         elements.recipientCity.value = '';
+        elements.recipientProvince.value = '';
         elements.recipientCountry.value = '';
         elements.recipientPostalCode.value = '';
         elements.recipientEmail.value = '';
@@ -921,6 +934,7 @@
                 addressLine1: elements.recipientAddressLine1.value,
                 addressLine2: elements.recipientAddressLine2.value,
                 city: elements.recipientCity.value,
+                province: elements.recipientProvince.value,
                 country: elements.recipientCountry.value,
                 postalCode: elements.recipientPostalCode.value,
                 email: elements.recipientEmail.value,
@@ -935,6 +949,7 @@
                 addressLine1: elements.senderAddressLine1.value,
                 addressLine2: elements.senderAddressLine2.value,
                 city: elements.senderCity.value,
+                province: elements.senderProvince.value,
                 country: elements.senderCountry.value,
                 postalCode: elements.senderPostalCode.value,
                 email: elements.senderEmail.value,
@@ -994,6 +1009,7 @@
         elements.recipientAddressLine1.value = invoice.recipient.addressLine1 || invoice.recipient.address || '';
         elements.recipientAddressLine2.value = invoice.recipient.addressLine2 || '';
         elements.recipientCity.value = invoice.recipient.city || '';
+        elements.recipientProvince.value = invoice.recipient.province || '';
         elements.recipientCountry.value = invoice.recipient.country || '';
         elements.recipientPostalCode.value = invoice.recipient.postalCode || '';
         elements.recipientEmail.value = invoice.recipient.email;
@@ -1005,6 +1021,7 @@
         elements.senderAddressLine1.value = invoice.sender.addressLine1 || invoice.sender.address || '';
         elements.senderAddressLine2.value = invoice.sender.addressLine2 || '';
         elements.senderCity.value = invoice.sender.city || '';
+        elements.senderProvince.value = invoice.sender.province || '';
         elements.senderCountry.value = invoice.sender.country || '';
         elements.senderPostalCode.value = invoice.sender.postalCode || '';
         elements.senderEmail.value = invoice.sender.email;
@@ -1185,8 +1202,9 @@
             if (elements.senderAddressLine2.value.trim()) {
                 yPos += addText(elements.senderAddressLine2.value, margin, yPos, { maxWidth: 100 });
             }
-            const senderCityLine = `${elements.senderCity.value}, ${elements.senderCountry.value} ${elements.senderPostalCode.value}`.trim();
+            const senderCityLine = `${elements.senderCity.value}, ${elements.senderProvince.value} ${elements.senderPostalCode.value}`.trim();
             yPos += addText(senderCityLine, margin, yPos, { maxWidth: 100 });
+            yPos += addText(elements.senderCountry.value, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.senderEmail.value, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.senderPhone.value, margin, yPos, { maxWidth: 100 });
             yPos += 10;
@@ -1209,8 +1227,9 @@
             if (elements.recipientAddressLine2.value.trim()) {
                 yPos += addText(elements.recipientAddressLine2.value, margin, yPos, { maxWidth: 100 });
             }
-            const recipientCityLine = `${elements.recipientCity.value}, ${elements.recipientCountry.value} ${elements.recipientPostalCode.value}`.trim();
+            const recipientCityLine = `${elements.recipientCity.value}, ${elements.recipientProvince.value} ${elements.recipientPostalCode.value}`.trim();
             yPos += addText(recipientCityLine, margin, yPos, { maxWidth: 100 });
+            yPos += addText(elements.recipientCountry.value, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.recipientEmail.value, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.recipientPhone.value, margin, yPos, { maxWidth: 100 });
             yPos += 10;
@@ -1471,6 +1490,7 @@
             { element: elements.senderAddressLine1, name: 'Your Address Line 1' },
             // senderAddressLine2 is optional
             { element: elements.senderCity, name: 'Your City' },
+            { element: elements.senderProvince, name: 'Your Province/State' },
             { element: elements.senderCountry, name: 'Your Country' },
             { element: elements.senderPostalCode, name: 'Your Postal Code' },
             { element: elements.senderEmail, name: 'Your Email' },
@@ -1488,6 +1508,7 @@
             { element: elements.recipientAddressLine1, name: 'Recipient Address Line 1' },
             // recipientAddressLine2 is optional
             { element: elements.recipientCity, name: 'Recipient City' },
+            { element: elements.recipientProvince, name: 'Recipient Province/State' },
             { element: elements.recipientCountry, name: 'Recipient Country' },
             { element: elements.recipientPostalCode, name: 'Recipient Postal Code' },
             { element: elements.recipientEmail, name: 'Recipient Email' },
