@@ -62,6 +62,14 @@
         importDataBtn: document.getElementById('importDataBtn'),
         importFile: document.getElementById('importFile'),
 
+        // GitHub Backup
+        githubToken: document.getElementById('githubToken'),
+        githubOwner: document.getElementById('githubOwner'),
+        githubRepo: document.getElementById('githubRepo'),
+        githubBranch: document.getElementById('githubBranch'),
+        saveGithubConfig: document.getElementById('saveGithubConfig'),
+        backupToGithub: document.getElementById('backupToGithub'),
+
         // Invoice History & Actions
         invoiceHistoryBody: document.getElementById('invoiceHistoryBody'),
         saveInvoiceBtn: document.getElementById('saveInvoiceBtn'),
@@ -86,6 +94,7 @@
     const ISSUERS_STORAGE_KEY = 'invoice-issuers';
     const INVOICES_STORAGE_KEY = 'invoice-list';
     const LAST_INVOICE_NUM_KEY = 'last-invoice-number';
+    const GITHUB_CONFIG_KEY = 'github-backup-config';
 
     // State
     let currentInvoiceId = null;
@@ -117,6 +126,10 @@
         elements.exportDataBtn.addEventListener('click', exportData);
         elements.importDataBtn.addEventListener('click', () => elements.importFile.click());
         elements.importFile.addEventListener('change', importData);
+
+        // GitHub Backup
+        elements.saveGithubConfig.addEventListener('click', saveGithubConfig);
+        elements.backupToGithub.addEventListener('click', backupToGithub);
 
         // Invoice Actions
         elements.saveInvoiceBtn.addEventListener('click', saveInvoice);
@@ -152,6 +165,9 @@
         // Phone number formatting
         elements.senderPhone.addEventListener('input', (e) => formatPhoneNumber(e.target));
         elements.recipientPhone.addEventListener('input', (e) => formatPhoneNumber(e.target));
+
+        // Load saved GitHub configuration
+        loadGithubConfig();
     }
 
     // Format phone number as user types
@@ -761,6 +777,132 @@
             event.target.value = '';
         };
         reader.readAsText(file);
+    }
+
+    // --- GitHub Backup Functions ---
+
+    // Load GitHub config on init
+    function loadGithubConfig() {
+        const config = localStorage.getItem(GITHUB_CONFIG_KEY);
+        if (config) {
+            try {
+                const parsed = JSON.parse(config);
+                elements.githubToken.value = parsed.token || '';
+                elements.githubOwner.value = parsed.owner || '';
+                elements.githubRepo.value = parsed.repo || '';
+                elements.githubBranch.value = parsed.branch || 'main';
+            } catch (err) {
+                console.error('Error loading GitHub config:', err);
+            }
+        }
+    }
+
+    // Save GitHub configuration
+    function saveGithubConfig() {
+        const config = {
+            token: elements.githubToken.value.trim(),
+            owner: elements.githubOwner.value.trim(),
+            repo: elements.githubRepo.value.trim(),
+            branch: elements.githubBranch.value.trim() || 'main'
+        };
+
+        if (!config.token || !config.owner || !config.repo) {
+            showMessage('⚠️ Please fill in all GitHub configuration fields', 'error');
+            return;
+        }
+
+        localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(config));
+        showMessage('✅ GitHub configuration saved!');
+    }
+
+    // Backup to GitHub using API
+    async function backupToGithub() {
+        const configStr = localStorage.getItem(GITHUB_CONFIG_KEY);
+        if (!configStr) {
+            showMessage('⚠️ Please configure GitHub settings first', 'error');
+            return;
+        }
+
+        let config;
+        try {
+            config = JSON.parse(configStr);
+        } catch (err) {
+            showMessage('❌ Invalid GitHub configuration', 'error');
+            return;
+        }
+
+        if (!config.token || !config.owner || !config.repo) {
+            showMessage('⚠️ Please configure GitHub settings first', 'error');
+            return;
+        }
+
+        try {
+            // Show loading state
+            const originalText = elements.backupToGithub.textContent;
+            elements.backupToGithub.disabled = true;
+            elements.backupToGithub.textContent = '⏳ Backing up...';
+
+            // Prepare backup data
+            const data = {
+                issuers: localStorage.getItem(ISSUERS_STORAGE_KEY),
+                clients: localStorage.getItem(CLIENTS_STORAGE_KEY),
+                invoices: localStorage.getItem(INVOICES_STORAGE_KEY),
+                lastInvoiceNum: localStorage.getItem(LAST_INVOICE_NUM_KEY),
+                timestamp: new Date().toISOString()
+            };
+
+            const jsonContent = JSON.stringify(data, null, 2);
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const filename = `invoice-backup-${timestamp}.json`;
+            const path = `backups/${filename}`;
+
+            // Base64 encode the content
+            const encodedContent = btoa(unescape(encodeURIComponent(jsonContent)));
+
+            // GitHub API endpoint
+            const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`;
+
+            // Create the file via GitHub API
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${config.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Backup: ${timestamp}`,
+                    content: encodedContent,
+                    branch: config.branch
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showMessage(`✅ Backup saved to GitHub! File: ${filename}`);
+            } else {
+                const error = await response.json();
+                console.error('GitHub API error:', error);
+
+                if (response.status === 401) {
+                    showMessage('❌ Invalid GitHub token. Please check your configuration.', 'error');
+                } else if (response.status === 404) {
+                    showMessage('❌ Repository not found. Make sure it exists and your token has access.', 'error');
+                } else {
+                    showMessage(`❌ GitHub API error: ${error.message || 'Unknown error'}`, 'error');
+                }
+            }
+
+            // Restore button state
+            elements.backupToGithub.disabled = false;
+            elements.backupToGithub.textContent = originalText;
+
+        } catch (err) {
+            console.error('Backup error:', err);
+            showMessage('❌ Backup failed: ' + err.message, 'error');
+            elements.backupToGithub.disabled = false;
+            elements.backupToGithub.textContent = '🚀 Backup to GitHub Now';
+        }
     }
 
     // --- Invoice History Management ---

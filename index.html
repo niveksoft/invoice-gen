@@ -382,7 +382,7 @@
                     <p style="margin-bottom: var(--spacing-md); color: var(--muted-foreground); font-size: 0.875rem;">
                         Backup your saved profiles and invoice history to a file or restore from a previous backup.
                     </p>
-                    <div class="form-group" style="display: flex; gap: var(--spacing-md);">
+                    <div class="form-group" style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
                         <button type="button" id="exportDataBtn" class="btn btn-secondary">
                             ⬇️ Export Backup
                         </button>
@@ -390,6 +390,60 @@
                             ⬆️ Import Backup
                         </button>
                         <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </div>
+                </section>
+
+                <section class="card" style="margin-top: var(--spacing-lg);">
+                    <div class="card-header">
+                        <div class="card-icon">🔐</div>
+                        <h2 class="card-title">GitHub Backup (Private Repo)</h2>
+                    </div>
+                    <p style="margin-bottom: var(--spacing-md); color: var(--muted-foreground); font-size: 0.875rem;">
+                        Automatically backup your data to a separate private GitHub repository using the GitHub API.
+                    </p>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="githubToken">GitHub Personal Access Token (Fine-grained)</label>
+                            <input type="password" id="githubToken" placeholder="github_pat_...">
+                            <small style="color: var(--muted-foreground); font-size: 0.75rem;">
+                                Create at: <a href="https://github.com/settings/personal-access-tokens/new"
+                                    target="_blank">GitHub Settings → Personal Access Tokens</a><br>
+                                Required permissions: <strong>Contents (Read & Write)</strong> for your backup
+                                repository
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="githubOwner">Repository Owner</label>
+                            <input type="text" id="githubOwner" placeholder="your-username">
+                        </div>
+                        <div class="form-group">
+                            <label for="githubRepo">Repository Name</label>
+                            <input type="text" id="githubRepo" placeholder="invoice-backups">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="githubBranch">Branch (optional)</label>
+                            <input type="text" id="githubBranch" placeholder="main" value="main">
+                        </div>
+                    </div>
+
+                    <div class="form-group"
+                        style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-md);">
+                        <button type="button" id="saveGithubConfig" class="btn btn-secondary">
+                            💾 Save Configuration
+                        </button>
+                        <button type="button" id="backupToGithub" class="btn btn-primary">
+                            🚀 Backup to GitHub Now
+                        </button>
+                    </div>
+
+                    <div
+                        style="margin-top: var(--spacing-md); padding: var(--spacing-sm); background: var(--accent); border-radius: 4px;">
+                        <small style="color: var(--muted-foreground); font-size: 0.75rem;">
+                            ⚠️ <strong>Security Note:</strong> Your token is stored in browser localStorage. Never share
+                            your token.
+                            Use a fine-grained token with minimal permissions (only Contents for your backup repo).
+                        </small>
                     </div>
                 </section>
             </div>

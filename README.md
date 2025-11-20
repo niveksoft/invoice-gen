@@ -17,6 +17,10 @@ A clean, modern, and client-side invoice generator built with vanilla HTML, CSS,
   - Add invoice status watermarks (Draft, Paid, Overdue, Void).
   - Include payment instructions and notes.
 - **Responsive Design**: Works seamlessly on desktop and mobile devices.
+- **Data Backup**:
+  - Export/Import backups to JSON files
+  - **GitHub API backup** to separate private repository
+  - One-click automated backups
 
 ## Usage
 
@@ -28,6 +32,18 @@ A clean, modern, and client-side invoice generator built with vanilla HTML, CSS,
 3. **Add Items**: Click "Add Line Item" to list products or services.
 4. **Review Totals**: Adjust tax rate and shipping if necessary.
 5. **Generate**: Click the **Generate** button in the bottom right corner to download your PDF invoice.
+
+### Backing Up Your Data
+
+See [GITHUB_BACKUP_SETUP.md](GITHUB_BACKUP_SETUP.md) for detailed setup instructions.
+
+**Quick setup:**
+1. Create a private GitHub repository for backups
+2. Generate a GitHub Personal Access Token (fine-grained)
+3. Settings tab → Configure GitHub Backup section
+4. Click "🚀 Backup to GitHub Now"
+
+Your data is automatically pushed to your private GitHub repository!
 
 ## Technologies
 
