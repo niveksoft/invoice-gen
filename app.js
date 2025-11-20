@@ -938,7 +938,7 @@
                 country: elements.recipientCountry.value,
                 postalCode: elements.recipientPostalCode.value,
                 email: elements.recipientEmail.value,
-                phone: elements.recipientPhone.value
+                phone: getFullPhoneNumber(elements.recipientPhone, elements.recipientPhoneCountry)
             },
 
             // Sender info
@@ -953,7 +953,7 @@
                 country: elements.senderCountry.value,
                 postalCode: elements.senderPostalCode.value,
                 email: elements.senderEmail.value,
-                phone: elements.senderPhone.value
+                phone: getFullPhoneNumber(elements.senderPhone, elements.senderPhoneCountry)
             },
 
             items: items,
@@ -1013,7 +1013,11 @@
         elements.recipientCountry.value = invoice.recipient.country || '';
         elements.recipientPostalCode.value = invoice.recipient.postalCode || '';
         elements.recipientEmail.value = invoice.recipient.email;
-        elements.recipientPhone.value = invoice.recipient.phone;
+
+        const recipientPhoneData = parsePhoneNumber(invoice.recipient.phone || '');
+        elements.recipientPhoneCountry.value = recipientPhoneData.countryCode;
+        elements.recipientPhone.value = recipientPhoneData.number;
+        if (recipientPhoneData.number) formatPhoneNumber(elements.recipientPhone);
 
         // Sender - support both new and old formats
         elements.senderFirstName.value = invoice.sender.firstName || '';
@@ -1025,7 +1029,11 @@
         elements.senderCountry.value = invoice.sender.country || '';
         elements.senderPostalCode.value = invoice.sender.postalCode || '';
         elements.senderEmail.value = invoice.sender.email;
-        elements.senderPhone.value = invoice.sender.phone;
+
+        const senderPhoneData = parsePhoneNumber(invoice.sender.phone || '');
+        elements.senderPhoneCountry.value = senderPhoneData.countryCode;
+        elements.senderPhone.value = senderPhoneData.number;
+        if (senderPhoneData.number) formatPhoneNumber(elements.senderPhone);
 
         // Totals
         elements.shippingFee.value = invoice.totals.shipping;
@@ -1202,11 +1210,10 @@
             if (elements.senderAddressLine2.value.trim()) {
                 yPos += addText(elements.senderAddressLine2.value, margin, yPos, { maxWidth: 100 });
             }
-            const senderCityLine = `${elements.senderCity.value}, ${elements.senderProvince.value} ${elements.senderPostalCode.value}`.trim();
-            yPos += addText(senderCityLine, margin, yPos, { maxWidth: 100 });
-            yPos += addText(elements.senderCountry.value, margin, yPos, { maxWidth: 100 });
+            const senderLocationLine = `${elements.senderCity.value}, ${elements.senderProvince.value}, ${elements.senderCountry.value} ${elements.senderPostalCode.value}`.trim();
+            yPos += addText(senderLocationLine, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.senderEmail.value, margin, yPos, { maxWidth: 100 });
-            yPos += addText(elements.senderPhone.value, margin, yPos, { maxWidth: 100 });
+            yPos += addText(getFullPhoneNumber(elements.senderPhone, elements.senderPhoneCountry), margin, yPos, { maxWidth: 100 });
             yPos += 10;
 
             // BILL TO section (changed from "Issued To")
@@ -1227,11 +1234,10 @@
             if (elements.recipientAddressLine2.value.trim()) {
                 yPos += addText(elements.recipientAddressLine2.value, margin, yPos, { maxWidth: 100 });
             }
-            const recipientCityLine = `${elements.recipientCity.value}, ${elements.recipientProvince.value} ${elements.recipientPostalCode.value}`.trim();
-            yPos += addText(recipientCityLine, margin, yPos, { maxWidth: 100 });
-            yPos += addText(elements.recipientCountry.value, margin, yPos, { maxWidth: 100 });
+            const recipientLocationLine = `${elements.recipientCity.value}, ${elements.recipientProvince.value}, ${elements.recipientCountry.value} ${elements.recipientPostalCode.value}`.trim();
+            yPos += addText(recipientLocationLine, margin, yPos, { maxWidth: 100 });
             yPos += addText(elements.recipientEmail.value, margin, yPos, { maxWidth: 100 });
-            yPos += addText(elements.recipientPhone.value, margin, yPos, { maxWidth: 100 });
+            yPos += addText(getFullPhoneNumber(elements.recipientPhone, elements.recipientPhoneCountry), margin, yPos, { maxWidth: 100 });
             yPos += 10;
 
             // Items Table in card style
