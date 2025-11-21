@@ -109,7 +109,12 @@
 
         // Event Listeners
         elements.addItemBtn.addEventListener('click', addLineItem);
-        elements.generatePdfBtn.addEventListener('click', generatePDF);
+        elements.generatePdfBtn.addEventListener('click', async () => {
+            const invoice = saveInvoice();
+            if (invoice) {
+                await generatePDF(invoice);
+            }
+        });
         elements.taxRate.addEventListener('input', updateTotals);
         elements.shippingFee.addEventListener('input', updateTotals);
 
@@ -1175,13 +1180,14 @@
         if (typeof silent !== 'boolean') silent = false;
 
         // Validate form before saving (unless silent mode for auto-save before PDF generation)
+        // Validate form before saving (unless silent mode for auto-save before PDF generation)
         if (!silent && !validateForm()) {
-            return false;
+            return null;
         }
 
         if (!elements.invoiceNumber.value) {
             if (!silent) showMessage('⚠️ Invoice number is required', 'error');
-            return false;
+            return null;
         }
 
         // Gather items
@@ -1271,7 +1277,7 @@
         currentInvoiceId = invoice.id;
 
         if (!silent) showMessage('💾 Invoice saved successfully!');
-        return true;
+        return invoice;
     }
 
     function loadInvoice(id) {
@@ -1485,16 +1491,7 @@
         const fromHistory = invoiceData !== null;
 
         if (!fromHistory) {
-            // Auto-save invoice before generating
-            if (!saveInvoice(true)) {
-                showMessage('⚠️ Please fix errors before generating', 'error');
-                return;
-            }
-
-            // Validate required fields
-            if (!validateForm()) {
-                return;
-            }
+            // Validation is now handled by the caller (saveInvoice)
         }
 
         try {
